@@ -44,7 +44,6 @@ export class VirtualKuaijsClient {
       projectRuntimeReady: true,
       projectRuntimeState: "ready",
       controlBackend: "kuaijs-project",
-      nativeFastPath: "project",
       llmConfigured: true,
       visionConfigured: true,
       agentConnected: true,

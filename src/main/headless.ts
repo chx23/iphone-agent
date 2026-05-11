@@ -6,7 +6,6 @@ import { AgentRuntime } from "./agent/runtime";
 import { ControlRouter } from "./controlRouter";
 import { DiagnosticsLogger } from "./diagnosticsLogger";
 import { loadLocalEnv } from "./env";
-import { KuaiNativeRuntime } from "./kuaiNativeRuntime";
 import { KuaijsClient } from "./kuaijsClient";
 import { KuaiProjectRuntime } from "./kuaijsProjectRuntime";
 import { LlmClient } from "./llmClient";
@@ -28,8 +27,6 @@ interface CliOptions {
   autoConfirm: boolean;
   health: boolean;
   smoke: boolean;
-  nativeProbe: boolean;
-  benchmarkNative: boolean;
   trustedContacts: string[];
 }
 
@@ -47,8 +44,7 @@ async function main(): Promise<void> {
   const projectRuntime = new KuaiProjectRuntime({
     rootDir: join(userDataDir, "phone-agent-kuai-runtime")
   });
-  const nativeRuntime = new KuaiNativeRuntime();
-  const control = new ControlRouter(projectRuntime, nativeRuntime, diagnosticSink);
+  const control = new ControlRouter(projectRuntime, diagnosticSink);
   await projectRuntime.ensure();
 
   const devices: DeviceRecord[] = [];
@@ -58,8 +54,7 @@ async function main(): Promise<void> {
     {
       buildInfo: { version: process.env.npm_package_version ?? "headless", buildTime: new Date().toISOString() },
       executablePath: process.execPath
-    },
-    nativeRuntime
+    }
   );
   const device = await resolveDevice(kuaijs, devices, options.deviceUrl);
   const settings = buildSettings(device.id, options);
@@ -86,18 +81,6 @@ async function main(): Promise<void> {
     const result = await control.runtimeSmokeTest(device);
     printResult(options, result);
     if (!result.ok) process.exitCode = 2;
-    return;
-  }
-
-  if (options.nativeProbe) {
-    const result = await control.nativeProbe(device);
-    printResult(options, result);
-    return;
-  }
-
-  if (options.benchmarkNative) {
-    const result = await runNativeBenchmark(control, device);
-    printResult(options, result);
     return;
   }
 
@@ -174,8 +157,6 @@ function parseArgs(args: string[]): CliOptions {
     autoConfirm: args.includes("--auto-confirm") || process.env.PHONE_AGENT_AUTO_CONFIRM === "1",
     health: args.includes("--health"),
     smoke: args.includes("--smoke"),
-    nativeProbe: args.includes("--native-probe"),
-    benchmarkNative: args.includes("--benchmark-native"),
     trustedContacts: trusted
   };
 }
@@ -288,38 +269,6 @@ async function waitForTerminalSnapshot(agent: AgentRuntime, timeoutMs: number, a
   return agent.getSnapshot();
 }
 
-async function runNativeBenchmark(control: ControlRouter, device: DeviceRecord): Promise<unknown> {
-  const probe = await control.nativeProbe(device);
-  const actions: AgentAction[] = [
-    { type: "home" },
-    { type: "open_app", bundleId: "com.tencent.xin", displayName: "微信" },
-    { type: "collect_scroll", direction: "down", maxScrolls: 1 }
-  ];
-  const results: Array<{ action: string; ok: boolean; elapsedMs: number; message: string; backend?: string; nativeFastPath?: string }> = [];
-  for (const action of actions) {
-    const startedAt = Date.now();
-    try {
-      const result = await control.executeDetailed(device, action);
-      results.push({
-        action: action.type,
-        ok: result.ok,
-        elapsedMs: Date.now() - startedAt,
-        message: result.message,
-        backend: result.backend,
-        nativeFastPath: result.nativeFastPath
-      });
-    } catch (error) {
-      results.push({
-        action: action.type,
-        ok: false,
-        elapsedMs: Date.now() - startedAt,
-        message: safeError(error)
-      });
-    }
-  }
-  return { probe, results };
-}
-
 function printResult(options: CliOptions, value: unknown): void {
   if (options.json) {
     console.log(JSON.stringify(value, null, 2));
@@ -342,8 +291,6 @@ function printUsage(): void {
     "  npm run agent:run -- \"打开机械之心公众号，阅读最新文章并总结\"",
     "  npm run agent:run -- --health",
     "  npm run agent:run -- --smoke",
-    "  npm run agent:run -- --native-probe",
-    "  npm run agent:run -- --benchmark-native",
     "  npm run agent:run -- --home",
     "  npm run agent:run -- --open-app 微信",
     "  npm run agent:run -- --tap-text 公众号",

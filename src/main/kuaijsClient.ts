@@ -2,7 +2,6 @@ import os from "node:os";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { BuildInfo, DeviceRecord, HealthCheck } from "../shared/types";
-import { KuaiNativeRuntime } from "./kuaiNativeRuntime";
 import { KuaiProjectRuntime } from "./kuaijsProjectRuntime";
 import { normalizeBaseUrl, now, safeError } from "./utils";
 
@@ -63,8 +62,7 @@ export class KuaijsClient {
   constructor(
     private readonly getDevices: () => DeviceRecord[],
     private readonly projectRuntime?: KuaiProjectRuntime,
-    private readonly diagnostics?: AppDiagnostics,
-    private readonly nativeRuntime?: KuaiNativeRuntime
+    private readonly diagnostics?: AppDiagnostics
   ) {}
 
   baseUrl(device: DeviceRecord): string {
@@ -177,8 +175,6 @@ export class KuaijsClient {
         projectRuntimeReady: projectRuntimeHealth?.projectRuntimeReady ?? false,
         projectRuntimeState: projectRuntimeHealth?.state ?? "not_started",
         controlBackend: "none",
-        nativeFastPath: projectRuntimeHealth?.projectRuntimeReady ? "project" : "none",
-        nativeRuntimeMessage: "No device selected; native probe has not run.",
         llmConfigured,
         visionConfigured,
         buildInfo: this.diagnostics?.buildInfo,
@@ -212,14 +208,6 @@ export class KuaijsClient {
     const deviceOnline = kuaijsReachable || screenshotOk || sourceOk;
     const projectRuntimeHealth = projectRuntime.status === "fulfilled" ? projectRuntime.value : undefined;
     const projectRuntimeReady = projectRuntimeHealth?.projectRuntimeReady ?? false;
-    const nativeProbe = this.nativeRuntime && deviceOnline
-      ? await this.nativeRuntime.probe(device, projectRuntimeReady).catch((error) => ({
-          ok: false,
-          fastPath: projectRuntimeReady ? "project" as const : "none" as const,
-          capabilities: undefined,
-          message: safeError(error)
-        }))
-      : undefined;
     const controlBackend = projectRuntimeReady ? "kuaijs-project" : "none";
     const controlMessage = buildControlMessage(statusData, deviceOnline, projectRuntimeReady);
     const suggestedBridge = !deviceOnline && device.connectionMode !== "bridge"
@@ -241,12 +229,6 @@ export class KuaijsClient {
       projectRuntimeReady,
       projectRuntimeState: projectRuntimeHealth?.state ?? "not_started",
       controlBackend,
-      nativeCapabilities: nativeProbe?.capabilities,
-      nativeFastPath: nativeProbe?.fastPath ?? (projectRuntimeReady ? "project" : "none"),
-      hidUsbConnected: nativeProbe?.capabilities?.hidUsb ?? statusData?.isHidConnected,
-      hidBleConnected: nativeProbe?.capabilities?.hidBle,
-      nativeOcrReady: Boolean(nativeProbe?.capabilities?.appleOcr || nativeProbe?.capabilities?.paddleOcr),
-      nativeRuntimeMessage: nativeProbe?.message,
       llmConfigured,
       visionConfigured,
       buildInfo: this.diagnostics?.buildInfo,
@@ -266,7 +248,7 @@ export class KuaijsClient {
       runtimeSmokeOk: projectRuntimeHealth?.runtimeSmokeOk,
       suggestedBridge: suggestedBridge && `${suggestedBridge.host}:${suggestedBridge.port}` !== `${device.host}:${device.port}` ? suggestedBridge : undefined,
       checkedAt,
-      message: buildHealthMessage(device, deviceOnline, statusData, suggestedBridge, controlMessage, nativeProbe?.message ?? projectRuntimeHealth?.message)
+      message: buildHealthMessage(device, deviceOnline, statusData, suggestedBridge, controlMessage, projectRuntimeHealth?.message)
     };
   }
 

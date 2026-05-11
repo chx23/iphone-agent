@@ -44,7 +44,7 @@ describe("live phone agent task", () => {
       rootDir: join(userDataDir, "phone-agent-kuai-runtime")
     });
     await projectRuntime.ensure();
-    const control = new ControlRouter(projectRuntime, undefined, diagnosticSink);
+    const control = new ControlRouter(projectRuntime, diagnosticSink);
     const kuaijs = new KuaijsClient(
       () => devices,
       projectRuntime,

@@ -101,7 +101,7 @@ function classifyNonArticleWechatSurface(screen: ScreenGraph, labels: string[], 
   const articleLikeWebView = hasWechatArticleLikeWebView(rawSource, labels, text);
   if (hasWechatBottomTabBar(labels, text) || /XCUIElementTypeTabBar\b[^>]*label="标签页栏"/.test(rawSource)) return "wechat_bottom_tab_bar";
   if (/快捷操作/.test(text) && /搜索/.test(text) && /置顶聊天|消息免打扰|未读|公众号|\d{1,2}:\d{2}|\d{1,2}月\d{1,2}日/.test(text)) return "wechat_recent_chats";
-  if (/通讯录/.test(text) && /新的朋友|群聊|标签|公众号|企业微信联系人/.test(text)) return "wechat_contacts";
+  if (!articleLikeWebView && /通讯录/.test(text) && /新的朋友|群聊|标签|公众号|企业微信联系人/.test(text)) return "wechat_contacts";
   if (/公众号/.test(text) && /搜索|新的公众号|公众号列表|订阅号/.test(text) && !/阅读原文|写留言|发布于/.test(text)) return "wechat_official_accounts_list";
   if (/搜索本地|网络结果|最近在搜|大家都在搜|相关搜索|问元宝|图片搜索|文件搜索/.test(text) || screen.keyboardVisible) return "wechat_search";
   if (/内容由AI生成|问 AI|继续提问|切换模型|AI搜索/.test(text)) return "wechat_ai_search";
@@ -209,7 +209,9 @@ function isProbablyVisibleOnScreen(screen: ScreenGraph, element: ElementRef): bo
 
 function isWechatArticleEndMarker(label: string): boolean {
   const normalized = label.trim();
-  return normalized === "阅读原文"
+  return normalized === "© THE END"
+    || normalized === "已无更多数据"
+    || normalized === "阅读原文"
     || normalized === "写留言"
     || normalized === "喜欢作者"
     || normalized === "在看"

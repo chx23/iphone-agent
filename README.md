@@ -80,23 +80,6 @@ App launching follows the KuaiJS runtime API shape from `ms-types`: first
 `system.activateApp(bundleId)` / `system.startApp(bundleId)`, then
 `hid.openApp(appNameOrBundleId)` as fallback.
 
-## KuaiJS Native Fast Path
-
-The runner probes native KuaiJS capabilities before control actions. It tries
-`/api/runScript` first, then falls back to the generated KuaiJS project runtime.
-The native path can combine several low-level operations on the phone side:
-node-selector taps, atomic text input, stable scrolling, and article text
-collection.
-
-```powershell
-npm run agent:run -- --native-probe
-npm run agent:run -- --benchmark-native
-```
-
-Current bridge behavior is intentionally non-blocking: if `/api/runScript`
-returns `401` or `404`, phone-agent records the diagnostic result and keeps
-using the project runtime.
-
 ## Build And Tests
 
 ```powershell

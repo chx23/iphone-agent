@@ -138,13 +138,26 @@ $null = [Windows.Graphics.Imaging.BitmapDecoder, Windows.Graphics.Imaging, Conte
 $null = [Windows.Graphics.Imaging.SoftwareBitmap, Windows.Graphics.Imaging, ContentType=WindowsRuntime]
 
 function AwaitWinRt($operation, $resultType) {
-  $method = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object {
+  $methods = @([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object {
     $_.Name -eq "AsTask" -and
+    $_.IsGenericMethodDefinition -and
     $_.GetParameters().Count -eq 1 -and
-    $_.GetParameters()[0].ParameterType.Name -eq "IAsyncOperation\`1"
-  })[0]
-  $task = $method.MakeGenericMethod($resultType).Invoke($null, @($operation))
-  return $task.GetAwaiter().GetResult()
+    $_.GetGenericArguments().Count -eq 1
+  })
+  if ($methods.Count -eq 0) {
+    throw "WindowsRuntimeSystemExtensions.AsTask<T> was not found."
+  }
+
+  $lastError = $null
+  foreach ($method in $methods) {
+    try {
+      $task = $method.MakeGenericMethod($resultType).Invoke($null, @($operation))
+      return $task.GetAwaiter().GetResult()
+    } catch {
+      $lastError = $_.Exception
+    }
+  }
+  throw $lastError
 }
 
 function OcrImage($path, $engine) {
@@ -194,7 +207,17 @@ if ($null -eq $engine) {
 }
 
 $pathsJson = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($env:PHONE_AGENT_OCR_PATHS_B64))
-$paths = @($pathsJson | ConvertFrom-Json)
+$convertedPaths = ConvertFrom-Json -InputObject $pathsJson
+$paths = New-Object 'System.Collections.Generic.List[string]'
+function AddOcrPath($value) {
+  if ($null -eq $value) { return }
+  if ($value -is [System.Array]) {
+    foreach ($inner in $value) { AddOcrPath $inner }
+    return
+  }
+  $paths.Add([string]$value)
+}
+AddOcrPath $convertedPaths
 $images = @()
 foreach ($path in $paths) {
   $images += OcrImage ([string]$path) $engine

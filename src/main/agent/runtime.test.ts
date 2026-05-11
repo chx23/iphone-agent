@@ -141,6 +141,31 @@ describe("agent runtime failure messages", () => {
     expect(article?.title).toContain("Suno");
   });
 
+  it("keeps article detection at the article end when the top back label says Contacts", () => {
+    const article = extractWechatArticleText(articleScreen([
+      articleNode("XCUIElementTypeWebView", 0),
+      articleNode("通讯录", 150),
+      articleNode("关闭", 150),
+      articleNode("更多", 150),
+      articleNode("Suno不再是唯一答案，企业开始选择这个国产AI音乐", 260),
+      articleNode("机器之心", 340),
+      articleNode("2026年5月11日 12:09", 410),
+      articleNode("机器之心发布", 470),
+      articleNode("在 AI 音乐行业，有一个正在悄悄发生的迁移，企业用户开始从通用生成转向更可控的音乐模型。", 620),
+      articleNode("从能生成到能发布，再到让创作意图被真正听见，文章总结了国产 AI 音乐工具在企业场景中的变化。", 760),
+      articleNode("© THE END", 1460),
+      articleNode("已无更多数据", 1530),
+      articleNode("阅读1.0万", 1640),
+      articleNode("留言 1", 1720),
+      articleNode("赞 48", 1800),
+      articleNode("分享 435", 1880),
+      articleNode("在看 22", 1960)
+    ]), "机器之心", false);
+
+    expect(article).toBeDefined();
+    expect(article?.reachedEnd).toBe(true);
+  });
+
   it("marks the article as read only when end evidence is visible near the reading area", () => {
     const article = extractWechatArticleText(articleScreen([
       articleNode("机器之心", 80),

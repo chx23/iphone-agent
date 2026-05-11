@@ -47,25 +47,6 @@ export type ProjectRuntimeState = "not_started" | "scaffolding" | "installing" |
 
 export type RuntimeMode = "bridge-http" | "lan-http" | "ws-server";
 
-export type NativeFastPath = "runScript" | "worker" | "project" | "none";
-
-export interface NativeCapabilities {
-  runScript: boolean;
-  worker: boolean;
-  projectRuntime: boolean;
-  wsServer: boolean;
-  nodeSelector: boolean;
-  hidUsb: boolean;
-  hidBle: boolean;
-  ime: boolean;
-  appleOcr: boolean;
-  paddleOcr: boolean;
-  image: boolean;
-  system: boolean;
-  checkedAt: number;
-  message?: string;
-}
-
 export interface DeviceRecord {
   id: string;
   name: string;
@@ -82,9 +63,6 @@ export interface DeviceRecord {
   runtimeTargetPort?: number;
   runtimeTransport?: "http" | "ws";
   lastRuntimeMode?: RuntimeMode;
-  nativeFastPath?: NativeFastPath;
-  nativeCapabilityCache?: Record<string, boolean>;
-  workerWsPort?: number;
 }
 
 export interface AppSettings {
@@ -128,12 +106,6 @@ export interface HealthCheck {
   projectRuntimeReady: boolean;
   projectRuntimeState: ProjectRuntimeState;
   controlBackend: "kuaijs-project" | "none";
-  nativeCapabilities?: NativeCapabilities;
-  nativeFastPath?: NativeFastPath;
-  hidUsbConnected?: boolean;
-  hidBleConnected?: boolean;
-  nativeOcrReady?: boolean;
-  nativeRuntimeMessage?: string;
   llmConfigured: boolean;
   visionConfigured?: boolean;
   buildInfo?: BuildInfo;
@@ -159,10 +131,9 @@ export interface HealthCheck {
 export interface RuntimeActionResult {
   commandId: string;
   ok: boolean;
-  backend: "kuaijs-project" | "kuaijs-native";
+  backend: "kuaijs-project";
   message: string;
   runtimeMode?: RuntimeMode;
-  nativeFastPath?: NativeFastPath;
   rawLog?: string;
   observedAfter?: string;
   data?: unknown;

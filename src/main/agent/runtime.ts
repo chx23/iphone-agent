@@ -302,8 +302,9 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
           budgetIntentKind = currentIntent.kind;
           stepIndex = 0;
         }
+        const captureOwnsLoopBudget = this.isArticleCaptureInProgress(currentIntent);
         const maxSteps = maxStepsForIntent(currentIntent);
-        if (stepIndex >= maxSteps) {
+        if (!captureOwnsLoopBudget && stepIndex >= maxSteps) {
           this.fail("任务步数过多", `我已经尝试了 ${maxSteps} 步，先停下来避免误操作。`);
           return;
         }
@@ -318,6 +319,9 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
         if (this.stopped || this.paused || this.takeover) return;
 
         await this.captureArticleSummaryIfReady(screen);
+        if (this.snapshot.state === "stuck" || this.snapshot.state === "finished" || this.snapshot.state === "waiting_confirmation") {
+          return;
+        }
         const intent = this.currentIntent;
         if (!intent) return;
         if (intent.kind !== budgetIntentKind) {
@@ -589,6 +593,14 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
     });
     this.logDecisionTrace(decision.trace, policy);
     return decision;
+  }
+
+  private isArticleCaptureInProgress(intent: ParsedIntent | undefined): boolean {
+    return Boolean(
+      this.articleCaptureState
+      && !this.articleCaptureState.completed
+      && (intent?.kind === "wechat_article_summary" || intent?.kind === "wechat_multi_article_digest")
+    );
   }
 
   private async captureArticleSummaryIfReady(screen: ScreenGraph): Promise<void> {

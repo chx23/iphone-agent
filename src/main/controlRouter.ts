@@ -1,5 +1,4 @@
 import type { AgentAction, DeviceRecord, DiagnosticEvent, RuntimeActionResult } from "../shared/types";
-import { KuaiNativeRuntime } from "./kuaiNativeRuntime";
 import { KuaiProjectRuntime } from "./kuaijsProjectRuntime";
 import { safeError, sleep } from "./utils";
 
@@ -8,19 +7,8 @@ type DiagnosticSink = (event: Omit<DiagnosticEvent, "id" | "timestamp">) => void
 export class ControlRouter {
   constructor(
     private readonly projectRuntime?: KuaiProjectRuntime,
-    private readonly nativeRuntime?: KuaiNativeRuntime,
     private readonly diagnosticLog?: DiagnosticSink
   ) {}
-
-  async nativeProbe(device: DeviceRecord): Promise<unknown> {
-    const projectRuntimeHealth = await this.projectRuntime?.healthCheck();
-    return this.nativeRuntime?.probe(device, projectRuntimeHealth?.projectRuntimeReady ?? false, true)
-      ?? {
-        ok: false,
-        fastPath: projectRuntimeHealth?.projectRuntimeReady ? "project" : "none",
-        message: "KuaiJS native runtime is not configured."
-      };
-  }
 
   async runtimeSmokeTest(device: DeviceRecord): Promise<RuntimeActionResult> {
     if (!this.projectRuntime) {
@@ -31,9 +19,6 @@ export class ControlRouter {
 
   async execute(device: DeviceRecord, action: AgentAction): Promise<string> {
     const result = await this.executeDetailed(device, action);
-    if (result.backend === "kuaijs-native") {
-      return `KuaiJS native ${result.nativeFastPath ?? "runScript"}: ${result.message}`;
-    }
     return `快点JS项目运行时：${result.message}`;
   }
 
@@ -44,20 +29,8 @@ export class ControlRouter {
         commandId: "wait",
         ok: true,
         backend: "kuaijs-project",
-        message: action.reason ?? "等待完成"
+        message: action.reason ?? "wait completed"
       };
-    }
-
-    if (this.nativeRuntime && canNativeExecute(action)) {
-      this.logDeviceAction(device, action, "running", "kuaijs-native");
-      try {
-        const result = await this.nativeRuntime.execute(device, action);
-        this.logDeviceAction(device, action, result.ok ? "ok" : "failed", "kuaijs-native", result);
-        return result;
-      } catch (error) {
-        this.logDeviceAction(device, action, "failed", "kuaijs-native", undefined, error);
-        if (!canProjectRuntimeExecute(action)) throw error;
-      }
     }
 
     if (!canProjectRuntimeExecute(action)) {
@@ -65,7 +38,7 @@ export class ControlRouter {
         commandId: "agent-runtime",
         ok: true,
         backend: "kuaijs-project",
-        message: "该动作由 Agent Runtime 处理"
+        message: "Action is handled by Agent Runtime."
       };
     }
     if (!this.projectRuntime) {
@@ -87,7 +60,7 @@ export class ControlRouter {
     device: DeviceRecord,
     action: AgentAction,
     status: "running" | "ok" | "failed",
-    backend: "kuaijs-project" | "kuaijs-native",
+    backend: "kuaijs-project",
     result?: unknown,
     error?: unknown
   ): void {
@@ -110,23 +83,6 @@ export class ControlRouter {
 
 function canProjectRuntimeExecute(action: AgentAction): boolean {
   return ["tap_xy", "swipe", "input", "open_app", "open_url", "back", "home", "collect_scroll"].includes(action.type);
-}
-
-function canNativeExecute(action: AgentAction): boolean {
-  return [
-    "tap_xy",
-    "tap_text",
-    "swipe",
-    "input",
-    "input_atomic",
-    "open_app",
-    "open_url",
-    "back",
-    "home",
-    "collect_scroll",
-    "scroll_until_stable",
-    "read_wechat_article_native"
-  ].includes(action.type);
 }
 
 function summarizeAction(action: AgentAction): Record<string, unknown> {
