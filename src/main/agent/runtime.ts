@@ -547,14 +547,6 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
   private async plan(intent: ParsedIntent, screen: ScreenGraph, stepIndex: number): Promise<PlannerOutput> {
     this.setState("planning");
     if (intent.kind === "wechat_article_summary" && this.articleCaptureState && !this.articleCaptureState.completed) {
-      const account = intent.source?.name ?? intent.topic ?? this.articleCaptureState.account;
-      const surface = detectWechatArticleSurface(screen, account, true);
-      if (!surface.ok) {
-        this.articleCaptureState = undefined;
-        this.setTaskProgress("locate_source", "wechat:recover_article");
-        this.addEvent("planning", "阅读页面已离开", `当前屏幕不是公众号文章详情页（${surface.reason}），重新定位公众号文章。`, "failed");
-        return fallbackPlan(intent, screen, stepIndex, this.plannerContext());
-      }
       const direction = this.articleCaptureState.direction;
       return {
         action: { type: "collect_scroll", direction, maxScrolls: 1 },
@@ -563,7 +555,7 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
         confidence: 0.82,
         phase: "read_article",
         route: "wechat:current_article",
-        guardReason: surface.reason,
+        guardReason: "article_capture_pixel_diff_only",
         progressKey: `article:read:${direction}`
       };
     }
@@ -699,15 +691,12 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
     contact: string,
     account: string
   ): Promise<void> {
-    const surface = detectWechatArticleSurface(screen, account, Boolean(this.articleCaptureState));
+    const captureInProgress = Boolean(this.articleCaptureState);
+    const surface = captureInProgress
+      ? { ok: true, reason: "article_capture_pixel_diff_only", articleText: this.articleFromCaptureScreen(screen) }
+      : detectWechatArticleSurface(screen, account, false);
     this.logArticleSurfaceCheck(account, surface.reason, surface.ok);
-    if (!surface.ok || !surface.articleText) {
-      if (this.articleCaptureState) {
-        this.articleCaptureState = undefined;
-        this.setTaskProgress("locate_source", "wechat:recover_article");
-      }
-      return;
-    }
+    if (!surface.ok || !surface.articleText) return;
 
     const update = await this.captureArticleFrame(account, surface.articleText, screen);
     this.logArticleCapture(update, surface.reason);
@@ -774,6 +763,25 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
       this.articleCaptureState.title = article.title;
     }
     return appendArticleCaptureFrame(this.articleCaptureState, screen, article.lines);
+  }
+
+  private articleFromCaptureScreen(screen: ScreenGraph): WechatArticleText {
+    const labels = [...screen.nodes, ...screen.ocrBlocks]
+      .map((node) => node.label.trim())
+      .filter(Boolean)
+      .filter((label) => !/^XCUIElementType/.test(label))
+      .slice(0, 80);
+    const textSignature = labels.join("|");
+    const title = this.articleCaptureState?.title ?? "latest article";
+    return {
+      title,
+      lines: labels,
+      screenSignature: textSignature.slice(0, 12000),
+      contentSignature: textSignature.slice(0, 4000),
+      visualSignature: screen.screenshotBase64 ? `${screen.screenshotBase64.length}` : undefined,
+      reachedEnd: false,
+      reachedStart: false
+    };
   }
 
   private async extractCapturedArticleWithLocalOcr(account: string, state: ArticleCaptureState): Promise<ArticleForSummary> {
@@ -1005,8 +1013,10 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
     this.setTaskProgress("read_article", "wechat:multi_article_read");
     for (let screenIndex = 0; screenIndex < 160; screenIndex += 1) {
       const screen = await this.observe(device);
-      const article = extractMultiArticleText(screen, account, item.title, Boolean(this.articleCaptureState))
-        ?? forceExtractMultiArticleText(screen, item.title);
+      const captureInProgress = Boolean(this.articleCaptureState);
+      const article = captureInProgress
+        ? this.articleFromCaptureScreen(screen)
+        : extractMultiArticleText(screen, account, item.title, false) ?? forceExtractMultiArticleText(screen, item.title);
       this.deps.diagnostics?.({
         source: "agent",
         category: "agent_timeline",
@@ -1014,8 +1024,16 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
         taskId: this.snapshot.taskId,
         deviceId: this.currentRequest?.deviceId,
         status: article ? "ok" : "failed",
-        message: article ? `article_screen title=${article.title}` : "not_article_screen",
-        payload: { title: item.title, phase: "read_article", route: "wechat:multi_article_read", screenIndex }
+        message: article
+          ? `article_screen title=${article.title}; reason=${captureInProgress ? "article_capture_pixel_diff_only" : "initial_article_gate"}`
+          : "not_article_screen",
+        payload: {
+          title: item.title,
+          phase: "read_article",
+          route: "wechat:multi_article_read",
+          screenIndex,
+          articleSurfaceReason: captureInProgress ? "article_capture_pixel_diff_only" : "initial_article_gate"
+        }
       });
       if (!article) {
         this.fail("Article page not detected", `After opening "${item.title}", the current screen did not look like a WeChat article detail page.`);
