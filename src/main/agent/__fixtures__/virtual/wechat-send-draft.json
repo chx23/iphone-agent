@@ -1,0 +1,37 @@
+{
+  "id": "wechat-send-draft",
+  "title": "微信联系人草稿与发送放宽校验",
+  "instruction": "把总结发给陈弘轩",
+  "tags": ["wechat", "send", "draft"],
+  "modelStress": "normal",
+  "initialFrame": "wechat_contact_draft",
+  "expectedTerminalState": "finished",
+  "trustedContacts": ["陈弘轩"],
+  "frames": {
+    "wechat_contact_draft": {
+      "id": "wechat_contact_draft",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_contact_draft.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 110, "width": 180, "height": 80 }, "clickable": false },
+        { "label": "我读了机械之心最新文章。 简要总结：", "role": "XCUIElementTypeTextView", "bounds": { "x": 60, "y": 2040, "width": 840, "height": 110 } },
+        { "label": "发送", "role": "XCUIElementTypeButton", "bounds": { "x": 950, "y": 2040, "width": 160, "height": 110 } },
+        { "label": "输入框已有内容，不应重复输入", "bounds": { "x": 80, "y": 520, "width": 800, "height": 100 }, "clickable": false }
+      ],
+      "vision": { "pageType": "wechat_chat", "summary": "陈弘轩聊天页，输入框已有总结草稿。", "mainRegions": ["聊天标题", "输入区"], "inputHints": ["文本输入框"], "riskHints": [], "recommendedObservation": "发送前只需校验对象和草稿完整性。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "tap_xy", "label": "发送" }, "nextFrame": "wechat_contact_sent", "message": "发送现有草稿" }]
+    },
+    "wechat_contact_sent": {
+      "id": "wechat_contact_sent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_contact_sent.png",
+      "nodes": [
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 110, "width": 180, "height": 80 }, "clickable": false },
+        { "label": "我读了机械之心最新文章。 简要总结：文章梳理了具身智能发展路线。", "bounds": { "x": 220, "y": 520, "width": 820, "height": 150 }, "clickable": false },
+        { "label": "10:42", "bounds": { "x": 520, "y": 700, "width": 120, "height": 50 }, "clickable": false }
+      ],
+      "vision": { "pageType": "wechat_chat", "summary": "消息已显示在陈弘轩聊天页。", "mainRegions": ["聊天内容"], "inputHints": ["输入框"], "riskHints": [], "recommendedObservation": "可认为发送完成。", "ocrBlocks": [] }
+    }
+  }
+}

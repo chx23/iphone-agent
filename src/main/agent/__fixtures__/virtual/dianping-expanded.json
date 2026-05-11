@@ -1,0 +1,59 @@
+{
+  "id": "dianping-expanded",
+  "title": "大众点评定位、筛选、详情和空结果",
+  "instruction": "上大众点评搜索附近美食信息",
+  "tags": ["dianping", "food", "dialog", "results"],
+  "modelStress": "normal",
+  "initialFrame": "dianping_location_dialog",
+  "frames": {
+    "dianping_location_dialog": {
+      "id": "dianping_location_dialog",
+      "app": "com.dianping.dpscope",
+      "image": "images/dianping_location_dialog.png",
+      "nodes": [
+        { "label": "允许“大众点评”使用你的位置？", "bounds": { "x": 120, "y": 620, "width": 900, "height": 120 }, "clickable": false },
+        { "label": "仅使用期间允许", "bounds": { "x": 160, "y": 900, "width": 380, "height": 100 } },
+        { "label": "不允许", "bounds": { "x": 720, "y": 900, "width": 260, "height": 100 } }
+      ],
+      "dialogs": [{ "label": "定位权限弹窗", "bounds": { "x": 80, "y": 560, "width": 1010, "height": 520 } }],
+      "vision": { "pageType": "dialog", "summary": "大众点评请求定位权限。", "mainRegions": ["权限弹窗"], "inputHints": [], "riskHints": ["仅使用期间允许"], "recommendedObservation": "附近美食任务通常需要定位权限。", "ocrBlocks": [] }
+    },
+    "dianping_filter": {
+      "id": "dianping_filter",
+      "app": "com.dianping.dpscope",
+      "image": "images/dianping_filter.png",
+      "nodes": [
+        { "label": "附近美食", "bounds": { "x": 440, "y": 120, "width": 300, "height": 80 }, "clickable": false },
+        { "label": "智能排序", "bounds": { "x": 70, "y": 340, "width": 320, "height": 100 } },
+        { "label": "距离优先", "bounds": { "x": 70, "y": 520, "width": 320, "height": 100 } },
+        { "label": "人均 50-100", "bounds": { "x": 70, "y": 700, "width": 360, "height": 100 } },
+        { "label": "确定", "bounds": { "x": 800, "y": 1900, "width": 260, "height": 110 } }
+      ],
+      "vision": { "pageType": "dianping_results", "summary": "大众点评附近美食筛选面板。", "mainRegions": ["筛选项"], "inputHints": [], "riskHints": [], "recommendedObservation": "可根据任务选择距离或评分筛选。", "ocrBlocks": [] }
+    },
+    "dianping_shop_detail": {
+      "id": "dianping_shop_detail",
+      "app": "com.dianping.dpscope",
+      "image": "images/dianping_shop_detail.png",
+      "nodes": [
+        { "label": "川味小馆", "bounds": { "x": 80, "y": 260, "width": 360, "height": 100 }, "clickable": false },
+        { "label": "评分 4.8", "bounds": { "x": 80, "y": 430, "width": 260, "height": 80 }, "clickable": false },
+        { "label": "人均 78元", "bounds": { "x": 360, "y": 430, "width": 260, "height": 80 }, "clickable": false },
+        { "label": "地址：软件园路 88 号", "bounds": { "x": 80, "y": 590, "width": 620, "height": 90 }, "clickable": false },
+        { "label": "推荐菜：水煮鱼、毛血旺", "bounds": { "x": 80, "y": 740, "width": 760, "height": 90 }, "clickable": false }
+      ],
+      "vision": { "pageType": "dianping_results", "summary": "店铺详情页展示评分、人均、地址和推荐菜。", "mainRegions": ["店铺信息", "推荐菜"], "inputHints": [], "riskHints": [], "recommendedObservation": "可提取推荐理由和注意事项。", "ocrBlocks": [] }
+    },
+    "dianping_empty": {
+      "id": "dianping_empty",
+      "app": "com.dianping.dpscope",
+      "image": "images/dianping_empty.png",
+      "nodes": [
+        { "label": "没有找到相关商户", "bounds": { "x": 350, "y": 760, "width": 520, "height": 100 }, "clickable": false },
+        { "label": "换个关键词试试", "bounds": { "x": 390, "y": 920, "width": 430, "height": 90 }, "clickable": false },
+        { "label": "清除筛选", "bounds": { "x": 430, "y": 1120, "width": 320, "height": 100 } }
+      ],
+      "vision": { "pageType": "dianping_results", "summary": "大众点评搜索结果为空。", "mainRegions": ["空状态"], "inputHints": [], "riskHints": [], "recommendedObservation": "应该换关键词或清除筛选。", "ocrBlocks": [] }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "model-stress-surfaces",
+  "title": "模型慢响应和降级测试页面",
+  "instruction": "继续当前任务",
+  "tags": ["model_stress", "timeout", "bad_json"],
+  "modelStress": "timeout",
+  "initialFrame": "wechat_loading",
+  "frames": {
+    "wechat_loading": {
+      "id": "wechat_loading",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_loading.png",
+      "nodes": [
+        { "label": "正在加载", "bounds": { "x": 460, "y": 820, "width": 260, "height": 90 }, "clickable": false },
+        { "label": "网络似乎有点慢", "bounds": { "x": 380, "y": 970, "width": 430, "height": 90 }, "clickable": false },
+        { "label": "请稍候", "bounds": { "x": 470, "y": 1120, "width": 220, "height": 80 }, "clickable": false }
+      ],
+      "vision": { "pageType": "unknown", "summary": "微信加载页，用于模拟模型超时后的规则降级。", "mainRegions": ["加载提示"], "inputHints": [], "riskHints": [], "recommendedObservation": "等待后重新观察。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "wait" }, "nextFrame": "dialog_network_error", "message": "等待后出现网络错误" }]
+    },
+    "dialog_network_error": {
+      "id": "dialog_network_error",
+      "app": "com.tencent.xin",
+      "image": "images/dialog_network_error.png",
+      "nodes": [
+        { "label": "网络连接不可用", "bounds": { "x": 220, "y": 700, "width": 700, "height": 120 }, "clickable": false },
+        { "label": "重试", "bounds": { "x": 210, "y": 980, "width": 260, "height": 100 } },
+        { "label": "取消", "bounds": { "x": 700, "y": 980, "width": 260, "height": 100 } }
+      ],
+      "dialogs": [{ "label": "网络异常", "bounds": { "x": 120, "y": 620, "width": 930, "height": 560 } }],
+      "vision": { "pageType": "dialog", "summary": "网络异常弹窗。", "mainRegions": ["错误弹窗"], "inputHints": [], "riskHints": [], "recommendedObservation": "模型不可用时仍可给出可行动失败提示。", "ocrBlocks": [] }
+    }
+  }
+}

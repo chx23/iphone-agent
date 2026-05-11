@@ -1,0 +1,398 @@
+{
+  "id": "wechat-article-summary-send",
+  "title": "阅读机械之心最新文章并发送给陈弘轩",
+  "instruction": "打开机械之心公众号，阅读最新的一篇文章，然后将总结发给陈弘轩",
+  "initialFrame": "wechat_recent",
+  "expectedTerminalState": "finished",
+  "expectedPhases": ["locate_source", "open_article", "read_article", "compose_result", "deliver_message", "verify_done"],
+  "trustedContacts": ["陈弘轩"],
+  "frames": {
+    "wechat_recent": {
+      "id": "wechat_recent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_recent.png",
+      "nodes": [
+        { "label": "微信", "bounds": { "x": 520, "y": 130, "width": 130, "height": 70 }, "clickable": false },
+        { "label": "快捷操作", "role": "XCUIElementTypeButton", "bounds": { "x": 980, "y": 130, "width": 120, "height": 90 } },
+        { "label": "搜索", "role": "XCUIElementTypeSearchField", "bounds": { "x": 50, "y": 250, "width": 1070, "height": 92 } },
+        { "label": "陈弘轩, 上次总结已收到", "bounds": { "x": 70, "y": 520, "width": 900, "height": 120 } },
+        { "label": "公众号, 未读[3条], 机器之心: 最新文章", "bounds": { "x": 70, "y": 700, "width": 970, "height": 120 } },
+        { "label": "标签页栏", "role": "XCUIElementTypeTabBar", "bounds": { "x": 0, "y": 2212, "width": 1170, "height": 320 }, "clickable": false },
+        { "label": "微信", "role": "XCUIElementTypeButton", "bounds": { "x": 0, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "通讯录", "role": "XCUIElementTypeButton", "bounds": { "x": 292, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "发现", "role": "XCUIElementTypeButton", "bounds": { "x": 584, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "我", "role": "XCUIElementTypeButton", "bounds": { "x": 876, "y": 2212, "width": 292, "height": 320 } }
+      ],
+      "vision": {
+        "pageType": "wechat_home",
+        "summary": "微信近期聊天列表，包含陈弘轩和公众号会话。",
+        "mainRegions": ["聊天列表", "底部标签栏"],
+        "inputHints": ["搜索"],
+        "riskHints": [],
+        "recommendedObservation": "公众号阅读阶段应点通讯录，不应点联系人。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "通讯录" }, "nextFrame": "wechat_contacts", "message": "切换到通讯录" },
+        { "match": { "type": "tap_xy", "label": "陈弘轩" }, "nextFrame": "wechat_chat", "message": "进入陈弘轩聊天" },
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "wechat_recent_scrolled", "message": "近期聊天列表继续下滑" }
+      ]
+    },
+    "wechat_recent_scrolled": {
+      "id": "wechat_recent_scrolled",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_recent_scrolled.png",
+      "nodes": [
+        { "label": "微信", "bounds": { "x": 520, "y": 130, "width": 130, "height": 70 }, "clickable": false },
+        { "label": "陈弘轩, 上次总结已收到", "bounds": { "x": 70, "y": 430, "width": 900, "height": 120 } },
+        { "label": "文件传输助手", "bounds": { "x": 70, "y": 610, "width": 900, "height": 120 } },
+        { "label": "标签页栏", "role": "XCUIElementTypeTabBar", "bounds": { "x": 0, "y": 2212, "width": 1170, "height": 320 }, "clickable": false },
+        { "label": "微信", "role": "XCUIElementTypeButton", "bounds": { "x": 0, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "通讯录", "role": "XCUIElementTypeButton", "bounds": { "x": 292, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "发现", "role": "XCUIElementTypeButton", "bounds": { "x": 584, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "我", "role": "XCUIElementTypeButton", "bounds": { "x": 876, "y": 2212, "width": 292, "height": 320 } }
+      ],
+      "vision": {
+        "pageType": "wechat_home",
+        "summary": "微信近期聊天列表已滚动，目标联系人可见。",
+        "mainRegions": ["聊天列表", "底部标签栏"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "发送阶段可进入陈弘轩聊天。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "陈弘轩" }, "nextFrame": "wechat_chat", "message": "进入陈弘轩聊天" }
+      ]
+    },
+    "wechat_contacts": {
+      "id": "wechat_contacts",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_contacts.png",
+      "nodes": [
+        { "label": "通讯录", "bounds": { "x": 500, "y": 130, "width": 180, "height": 70 }, "clickable": false },
+        { "label": "新的朋友", "bounds": { "x": 90, "y": 360, "width": 500, "height": 96 } },
+        { "label": "群聊", "bounds": { "x": 90, "y": 500, "width": 500, "height": 96 } },
+        { "label": "标签", "bounds": { "x": 90, "y": 640, "width": 500, "height": 96 } },
+        { "label": "公众号", "bounds": { "x": 90, "y": 780, "width": 500, "height": 96 } },
+        { "label": "陈弘轩", "bounds": { "x": 90, "y": 1010, "width": 500, "height": 96 } },
+        { "label": "标签页栏", "role": "XCUIElementTypeTabBar", "bounds": { "x": 0, "y": 2212, "width": 1170, "height": 320 }, "clickable": false },
+        { "label": "微信", "role": "XCUIElementTypeButton", "bounds": { "x": 0, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "通讯录", "role": "XCUIElementTypeButton", "bounds": { "x": 292, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "发现", "role": "XCUIElementTypeButton", "bounds": { "x": 584, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "我", "role": "XCUIElementTypeButton", "bounds": { "x": 876, "y": 2212, "width": 292, "height": 320 } }
+      ],
+      "vision": {
+        "pageType": "wechat_contacts",
+        "summary": "微信通讯录页，公众号入口和联系人陈弘轩都可见。",
+        "mainRegions": ["通讯录快捷入口", "联系人列表", "底部标签栏"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "公众号阅读阶段只应点击公众号入口。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "公众号" }, "nextFrame": "wechat_official_accounts", "message": "进入公众号列表" }
+      ]
+    },
+    "wechat_official_accounts": {
+      "id": "wechat_official_accounts",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_official_accounts.png",
+      "nodes": [
+        { "label": "公众号", "bounds": { "x": 500, "y": 130, "width": 180, "height": 70 }, "clickable": false },
+        { "label": "搜索", "role": "XCUIElementTypeSearchField", "bounds": { "x": 50, "y": 250, "width": 1070, "height": 92 } },
+        { "label": "新的公众号", "bounds": { "x": 90, "y": 390, "width": 500, "height": 86 } },
+        { "label": "订阅号", "bounds": { "x": 90, "y": 500, "width": 500, "height": 86 } },
+        { "label": "机器之心", "bounds": { "x": 90, "y": 680, "width": 700, "height": 110 } },
+        { "label": "量子位", "bounds": { "x": 90, "y": 840, "width": 700, "height": 110 } }
+      ],
+      "vision": {
+        "pageType": "wechat_official_accounts",
+        "summary": "公众号列表中可见机器之心。",
+        "mainRegions": ["顶部搜索", "公众号列表"],
+        "inputHints": ["搜索"],
+        "riskHints": [],
+        "recommendedObservation": "可打开目标公众号主页。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "机器之心" }, "nextFrame": "wechat_account_home", "message": "打开机器之心主页" }
+      ]
+    },
+    "wechat_account_home": {
+      "id": "wechat_account_home",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_home.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "机器之心", "bounds": { "x": 450, "y": 130, "width": 300, "height": 70 }, "clickable": false },
+        { "label": "私信", "bounds": { "x": 80, "y": 290, "width": 180, "height": 70 } },
+        { "label": "已关注公众号", "bounds": { "x": 330, "y": 290, "width": 260, "height": 70 }, "clickable": false },
+        { "label": "专业的人工智能媒体和产业服务平台", "bounds": { "x": 80, "y": 390, "width": 800, "height": 70 }, "clickable": false },
+        { "label": "全部  文章  视频号", "bounds": { "x": 80, "y": 620, "width": 620, "height": 80 } },
+        { "label": "今天", "bounds": { "x": 80, "y": 760, "width": 180, "height": 60 }, "clickable": false },
+        { "label": "具身智能来时路：从语言理解到真实动作控制", "bounds": { "x": 80, "y": 860, "width": 880, "height": 150 } },
+        { "label": "机器人学习正在跨过演示阶段", "bounds": { "x": 80, "y": 1030, "width": 760, "height": 90 }, "clickable": false }
+      ],
+      "vision": {
+        "pageType": "wechat_account_home",
+        "summary": "机器之心公众号主页，最新文章卡片可见。",
+        "mainRegions": ["公众号信息", "文章列表"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "可点击最新文章卡片进入详情页。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "具身智能来时路" }, "nextFrame": "article_top", "message": "进入文章顶部" },
+        { "match": { "type": "back" }, "nextFrame": "wechat_recent", "message": "返回微信近期聊天" },
+        { "match": { "type": "tap_xy", "label": "返回" }, "nextFrame": "wechat_recent", "message": "返回微信近期聊天" }
+      ]
+    },
+    "article_top": {
+      "id": "article_top",
+      "app": "com.tencent.xin",
+      "image": "images/article_top.png",
+      "nodes": [
+        { "label": "关闭", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 110, "width": 120, "height": 90 } },
+        { "label": "MMWebView", "role": "XCUIElementTypeWebView", "bounds": { "x": 0, "y": 220, "width": 1170, "height": 2100 }, "clickable": false },
+        { "label": "具身智能来时路：从语言理解到真实动作控制", "bounds": { "x": 70, "y": 300, "width": 980, "height": 150 }, "clickable": false },
+        { "label": "机器之心", "bounds": { "x": 70, "y": 500, "width": 220, "height": 60 }, "clickable": false },
+        { "label": "2026年5月10日 10:00", "bounds": { "x": 310, "y": 500, "width": 360, "height": 60 }, "clickable": false },
+        { "label": "作者指出，具身智能的核心不只是让模型会说话，而是让系统能在真实环境里理解目标并完成动作。", "bounds": { "x": 70, "y": 650, "width": 980, "height": 140 }, "clickable": false },
+        { "label": "这篇文章回顾了从 SayCan、RT-1 到多模态机器人基础模型的发展路线。", "bounds": { "x": 70, "y": 820, "width": 980, "height": 120 }, "clickable": false },
+        { "label": "文章强调，语言能力只是入口，真正难点在于动作数据、评测标准和稳定的执行闭环。", "bounds": { "x": 70, "y": 980, "width": 980, "height": 120 }, "clickable": false }
+      ],
+      "vision": {
+        "pageType": "wechat_article",
+        "summary": "微信公众号文章详情页顶部，标题、公众号和发布日期可见。",
+        "mainRegions": ["文章标题", "作者和日期", "正文开头"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "这是文章详情页，可继续下滑阅读正文。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article_mid_1", "message": "阅读下一屏正文" },
+        { "match": { "type": "tap_xy", "label": "关闭" }, "nextFrame": "wechat_recent", "message": "关闭文章" }
+      ]
+    },
+    "article_mid_1": {
+      "id": "article_mid_1",
+      "app": "com.tencent.xin",
+      "image": "images/article_mid_1.png",
+      "nodes": [
+        { "label": "关闭", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 110, "width": 120, "height": 90 } },
+        { "label": "MMWebView", "role": "XCUIElementTypeWebView", "bounds": { "x": 0, "y": 220, "width": 1170, "height": 2100 }, "clickable": false },
+        { "label": "研究团队把任务拆成感知、计划和控制三个部分，先让模型理解场景，再把目标翻译成机器人可执行的动作。", "bounds": { "x": 70, "y": 420, "width": 980, "height": 150 }, "clickable": false },
+        { "label": "这种路线的优势是可解释性更强，但它也依赖高质量数据和可靠的低层控制器。", "bounds": { "x": 70, "y": 620, "width": 980, "height": 130 }, "clickable": false },
+        { "label": "文章用家庭整理、厨房取物和移动导航三个例子说明了从演示到产品之间的差距。", "bounds": { "x": 70, "y": 800, "width": 980, "height": 130 }, "clickable": false }
+      ],
+      "vision": {
+        "pageType": "wechat_article",
+        "summary": "文章中段，正文讨论感知、计划和控制。",
+        "mainRegions": ["正文段落"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "继续下滑直到文末或稳定。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article_mid_2", "message": "阅读下一屏正文" }
+      ]
+    },
+    "article_mid_2": {
+      "id": "article_mid_2",
+      "app": "com.tencent.xin",
+      "image": "images/article_mid_2.png",
+      "nodes": [
+        { "label": "关闭", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 110, "width": 120, "height": 90 } },
+        { "label": "MMWebView", "role": "XCUIElementTypeWebView", "bounds": { "x": 0, "y": 220, "width": 1170, "height": 2100 }, "clickable": false },
+        { "label": "作者认为，真实世界里的长尾情况会不断打破实验室里的漂亮演示。", "bounds": { "x": 70, "y": 420, "width": 980, "height": 120 }, "clickable": false },
+        { "label": "因此，下一阶段的竞争重点会从单次 demo 转向持续评测、失败恢复和可维护的数据闭环。", "bounds": { "x": 70, "y": 590, "width": 980, "height": 150 }, "clickable": false },
+        { "label": "文章还提到，开源模型和仿真平台降低了研究门槛，但并不能替代真实环境里的长期测试。", "bounds": { "x": 70, "y": 790, "width": 980, "height": 150 }, "clickable": false }
+      ],
+      "vision": {
+        "pageType": "wechat_article",
+        "summary": "文章中段，正文讨论长尾情况和持续评测。",
+        "mainRegions": ["正文段落"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "继续下滑阅读。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article_mid_3", "message": "阅读下一屏正文" }
+      ]
+    },
+    "article_mid_3": {
+      "id": "article_mid_3",
+      "app": "com.tencent.xin",
+      "image": "images/article_mid_3.png",
+      "nodes": [
+        { "label": "关闭", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 110, "width": 120, "height": 90 } },
+        { "label": "MMWebView", "role": "XCUIElementTypeWebView", "bounds": { "x": 0, "y": 220, "width": 1170, "height": 2100 }, "clickable": false },
+        { "label": "产业落地方面，文章提醒企业不要只看人形机器人外观，而要关注任务成功率、维护成本和安全边界。", "bounds": { "x": 70, "y": 420, "width": 980, "height": 150 }, "clickable": false },
+        { "label": "如果一个系统无法在失败后重新观察、重新规划，它就很难进入真实服务流程。", "bounds": { "x": 70, "y": 620, "width": 980, "height": 130 }, "clickable": false },
+        { "label": "这也是为什么文章把数据引擎、仿真回放和人类反馈列为基础设施。", "bounds": { "x": 70, "y": 800, "width": 980, "height": 130 }, "clickable": false }
+      ],
+      "vision": {
+        "pageType": "wechat_article",
+        "summary": "文章中段，正文讨论产业落地和失败恢复。",
+        "mainRegions": ["正文段落"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "继续下滑阅读。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article_mid_4", "message": "阅读下一屏正文" }
+      ]
+    },
+    "article_mid_4": {
+      "id": "article_mid_4",
+      "app": "com.tencent.xin",
+      "image": "images/article_mid_4.png",
+      "nodes": [
+        { "label": "关闭", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 110, "width": 120, "height": 90 } },
+        { "label": "MMWebView", "role": "XCUIElementTypeWebView", "bounds": { "x": 0, "y": 220, "width": 1170, "height": 2100 }, "clickable": false },
+        { "label": "最后，文章判断具身智能会先在封闭场景形成可复制能力，再逐步走向开放家庭和公共空间。", "bounds": { "x": 70, "y": 420, "width": 980, "height": 150 }, "clickable": false },
+        { "label": "短期内，可靠的工具链比更大的模型参数更能决定实际体验。", "bounds": { "x": 70, "y": 620, "width": 980, "height": 120 }, "clickable": false },
+        { "label": "这篇文章的结论是，智能体需要像人一样观察、试错和接续任务，而不是只执行固定脚本。", "bounds": { "x": 70, "y": 790, "width": 980, "height": 150 }, "clickable": false }
+      ],
+      "vision": {
+        "pageType": "wechat_article",
+        "summary": "文章接近结尾，正文讨论落地节奏和工具链。",
+        "mainRegions": ["正文段落"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "继续下滑到文末。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article_bottom", "message": "到达文章底部" }
+      ]
+    },
+    "article_bottom": {
+      "id": "article_bottom",
+      "app": "com.tencent.xin",
+      "image": "images/article_bottom.png",
+      "nodes": [
+        { "label": "关闭", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 110, "width": 120, "height": 90 } },
+        { "label": "MMWebView", "role": "XCUIElementTypeWebView", "bounds": { "x": 0, "y": 220, "width": 1170, "height": 2100 }, "clickable": false },
+        { "label": "文章末尾再次强调，具身智能不是一场单点能力竞赛，而是一套持续学习、持续验证的工程体系。", "bounds": { "x": 70, "y": 520, "width": 980, "height": 150 }, "clickable": false },
+        { "label": "当模型、数据和执行器形成闭环后，机器人才能真正从演示走向可用。", "bounds": { "x": 70, "y": 720, "width": 980, "height": 120 }, "clickable": false },
+        { "label": "阅读原文", "bounds": { "x": 430, "y": 1650, "width": 300, "height": 90 } },
+        { "label": "写留言", "bounds": { "x": 430, "y": 1810, "width": 300, "height": 90 } }
+      ],
+      "vision": {
+        "pageType": "wechat_article",
+        "summary": "文章底部，阅读原文和写留言可见。",
+        "mainRegions": ["正文结尾", "文章底部操作"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "已经到文末，可以总结并离开文章。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "关闭" }, "nextFrame": "wechat_recent", "message": "关闭文章回到近期聊天" },
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article_bottom", "message": "文末稳定无变化" }
+      ]
+    },
+    "wechat_chat": {
+      "id": "wechat_chat",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "对方: 上次总结已收到", "bounds": { "x": 80, "y": 520, "width": 760, "height": 100 }, "clickable": false },
+        { "label": "语音输入", "bounds": { "x": 30, "y": 2200, "width": 120, "height": 120 } },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 2208, "width": 720, "height": 100 } },
+        { "label": "表情", "bounds": { "x": 910, "y": 2200, "width": 100, "height": 120 } },
+        { "label": "更多", "bounds": { "x": 1030, "y": 2200, "width": 100, "height": 120 } }
+      ],
+      "vision": {
+        "pageType": "wechat_chat",
+        "summary": "与陈弘轩的微信聊天页，底部输入框为空。",
+        "mainRegions": ["聊天标题", "聊天记录", "输入区"],
+        "inputHints": ["输入"],
+        "riskHints": [],
+        "recommendedObservation": "可聚焦输入框并输入摘要草稿。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "输入" }, "nextFrame": "wechat_chat_focused", "message": "输入框已聚焦" }
+      ]
+    },
+    "wechat_chat_focused": {
+      "id": "wechat_chat_focused",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_focused.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 1540, "width": 720, "height": 100 } },
+        { "label": "键盘", "bounds": { "x": 0, "y": 1680, "width": 1170, "height": 850 }, "clickable": false }
+      ],
+      "vision": {
+        "pageType": "wechat_chat",
+        "summary": "聊天页输入框已聚焦，键盘弹出。",
+        "mainRegions": ["聊天标题", "输入区", "键盘"],
+        "inputHints": ["输入"],
+        "riskHints": [],
+        "recommendedObservation": "可一次性输入完整摘要。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "input", "textIncludes": "我读了" }, "nextFrame": "wechat_chat_draft", "message": "摘要已作为一条草稿输入" }
+      ]
+    },
+    "wechat_chat_draft": {
+      "id": "wechat_chat_draft",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_draft.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "我读了机器之心最新文章《具身智能来时路》。 简要总结：文章梳理了具身智能从语言理解走向真实动作控制的路线，强调数据、评测和工程稳定性仍是落地关键。 （phone-agent 自动整理）", "role": "XCUIElementTypeTextView", "bounds": { "x": 120, "y": 1340, "width": 820, "height": 260 } },
+        { "label": "发送", "role": "XCUIElementTypeButton", "bounds": { "x": 960, "y": 1500, "width": 150, "height": 90 } }
+      ],
+      "vision": {
+        "pageType": "wechat_chat",
+        "summary": "聊天输入框里已有完整摘要草稿，发送按钮可见。",
+        "mainRegions": ["聊天标题", "摘要草稿", "发送按钮"],
+        "inputHints": ["摘要草稿"],
+        "riskHints": [],
+        "recommendedObservation": "可确认聊天对象后发送。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "发送" }, "nextFrame": "wechat_chat_sent", "message": "摘要已发送" }
+      ]
+    },
+    "wechat_chat_sent": {
+      "id": "wechat_chat_sent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_sent.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "我: 我读了机器之心最新文章《具身智能来时路》。 简要总结：文章梳理了具身智能从语言理解走向真实动作控制的路线，强调数据、评测和工程稳定性仍是落地关键。 （phone-agent 自动整理）", "bounds": { "x": 160, "y": 1180, "width": 860, "height": 260 }, "clickable": false },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 2208, "width": 720, "height": 100 } }
+      ],
+      "vision": {
+        "pageType": "wechat_chat",
+        "summary": "摘要消息已经出现在与陈弘轩的聊天记录中。",
+        "mainRegions": ["聊天标题", "已发送消息", "输入区"],
+        "inputHints": ["输入"],
+        "riskHints": [],
+        "recommendedObservation": "发送结果可视为完成。",
+        "ocrBlocks": []
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "permissions-login-network",
+  "title": "权限、登录和网络异常页面",
+  "instruction": "继续当前手机任务",
+  "tags": ["dialog", "login", "network", "recovery"],
+  "modelStress": "slow",
+  "initialFrame": "wechat_permission_dialog",
+  "frames": {
+    "wechat_permission_dialog": {
+      "id": "wechat_permission_dialog",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_permission_dialog.png",
+      "nodes": [
+        { "label": "允许“微信”访问通讯录？", "bounds": { "x": 120, "y": 620, "width": 900, "height": 120 }, "clickable": false },
+        { "label": "不允许", "bounds": { "x": 160, "y": 900, "width": 260, "height": 100 } },
+        { "label": "允许", "bounds": { "x": 720, "y": 900, "width": 260, "height": 100 } }
+      ],
+      "dialogs": [{ "label": "通讯录权限弹窗", "bounds": { "x": 80, "y": 560, "width": 1010, "height": 520 } }],
+      "vision": { "pageType": "dialog", "summary": "微信请求通讯录权限。", "mainRegions": ["权限弹窗"], "inputHints": [], "riskHints": ["允许"], "recommendedObservation": "权限弹窗需要明确处理后才能继续。", "ocrBlocks": [] }
+    },
+    "wechat_login_page": {
+      "id": "wechat_login_page",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_login_page.png",
+      "nodes": [
+        { "label": "微信登录", "bounds": { "x": 440, "y": 120, "width": 300, "height": 80 }, "clickable": false },
+        { "label": "手机号登录", "role": "XCUIElementTypeTextField", "bounds": { "x": 100, "y": 480, "width": 900, "height": 110 } },
+        { "label": "密码", "role": "XCUIElementTypeSecureTextField", "bounds": { "x": 100, "y": 650, "width": 900, "height": 110 } },
+        { "label": "登录", "bounds": { "x": 100, "y": 850, "width": 900, "height": 110 } }
+      ],
+      "vision": { "pageType": "login", "summary": "微信登录页，需要用户登录。", "mainRegions": ["登录表单"], "inputHints": ["手机号登录", "密码"], "riskHints": ["登录"], "recommendedObservation": "自动任务应停住提示登录失效。", "ocrBlocks": [] }
+    },
+    "wechat_loading": {
+      "id": "wechat_loading",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_loading.png",
+      "nodes": [
+        { "label": "正在加载", "bounds": { "x": 460, "y": 820, "width": 260, "height": 90 }, "clickable": false },
+        { "label": "网络似乎有点慢", "bounds": { "x": 380, "y": 970, "width": 430, "height": 90 }, "clickable": false },
+        { "label": "请稍候", "bounds": { "x": 470, "y": 1120, "width": 220, "height": 80 }, "clickable": false }
+      ],
+      "vision": { "pageType": "unknown", "summary": "微信页面正在加载，网络较慢。", "mainRegions": ["加载提示"], "inputHints": [], "riskHints": [], "recommendedObservation": "应该等待后重新观察，而不是重复点击。", "ocrBlocks": [] }
+    },
+    "dialog_network_error": {
+      "id": "dialog_network_error",
+      "app": "com.tencent.xin",
+      "image": "images/dialog_network_error.png",
+      "nodes": [
+        { "label": "网络连接不可用", "bounds": { "x": 220, "y": 700, "width": 700, "height": 120 }, "clickable": false },
+        { "label": "重试", "bounds": { "x": 210, "y": 980, "width": 260, "height": 100 } },
+        { "label": "取消", "bounds": { "x": 700, "y": 980, "width": 260, "height": 100 } }
+      ],
+      "dialogs": [{ "label": "网络异常", "bounds": { "x": 120, "y": 620, "width": 930, "height": 560 } }],
+      "vision": { "pageType": "dialog", "summary": "网络错误弹窗，提供重试和取消。", "mainRegions": ["错误弹窗"], "inputHints": [], "riskHints": [], "recommendedObservation": "可提示网络问题或尝试重试。", "ocrBlocks": [] }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+node_modules/
+out/
+release/
+.tmp-live/
+
+.env
+.env.*
+*.log
+logs/
+article-captures/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+phone-agent-kuai-runtime/
+快点JS群控.exe
+updater/

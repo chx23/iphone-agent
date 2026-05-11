@@ -1,0 +1,78 @@
+{
+  "id": "wechat-recovery-expanded",
+  "title": "微信误入搜索与公众号列表恢复",
+  "instruction": "继续打开机械之心公众号并阅读最新文章",
+  "tags": ["wechat", "recovery", "official_account"],
+  "modelStress": "normal",
+  "initialFrame": "wechat_ai_search",
+  "expectedTerminalState": "stuck",
+  "frames": {
+    "wechat_ai_search": {
+      "id": "wechat_ai_search",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_ai_search.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "微信搜索", "bounds": { "x": 430, "y": 90, "width": 300, "height": 80 }, "clickable": false },
+        { "label": "内容由AI生成", "bounds": { "x": 70, "y": 300, "width": 500, "height": 110 }, "clickable": false },
+        { "label": "问 AI：机械之心 最新文章", "role": "XCUIElementTypeSearchField", "bounds": { "x": 70, "y": 500, "width": 900, "height": 110 } },
+        { "label": "继续提问", "bounds": { "x": 70, "y": 700, "width": 420, "height": 110 } }
+      ],
+      "vision": { "pageType": "wechat_search", "summary": "微信 AI 搜索页，键盘和继续提问入口可见。", "mainRegions": ["搜索结果", "AI回答", "输入框"], "inputHints": ["问 AI"], "riskHints": [], "recommendedObservation": "这不是公众号主页，应返回或切换搜索策略。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "back" }, "nextFrame": "wechat_recent_old_summary", "message": "退出微信 AI 搜索页" }]
+    },
+    "wechat_search_no_result": {
+      "id": "wechat_search_no_result",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_search_no_result.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "搜索本地或网络结果", "role": "XCUIElementTypeSearchField", "bounds": { "x": 40, "y": 160, "width": 900, "height": 96 } },
+        { "label": "机械之心", "bounds": { "x": 80, "y": 320, "width": 300, "height": 90 }, "clickable": false },
+        { "label": "该朋友暂无相关结果", "bounds": { "x": 90, "y": 560, "width": 600, "height": 100 }, "clickable": false },
+        { "label": "账号", "bounds": { "x": 90, "y": 760, "width": 160, "height": 90 } }
+      ],
+      "vision": { "pageType": "wechat_search", "summary": "微信搜索没有找到联系人结果。", "mainRegions": ["搜索框", "结果为空"], "inputHints": ["搜索本地或网络结果"], "riskHints": [], "recommendedObservation": "公众号阶段可切换账号结果或返回通讯录。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "back" }, "nextFrame": "wechat_recent_old_summary", "message": "返回微信列表" }]
+    },
+    "wechat_recent_old_summary": {
+      "id": "wechat_recent_old_summary",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_recent_old_summary.png",
+      "nodes": [
+        { "label": "微信", "bounds": { "x": 510, "y": 110, "width": 160, "height": 80 }, "clickable": false },
+        { "label": "陈弘轩：我读了机械之心最新文章，作者指出...", "bounds": { "x": 70, "y": 360, "width": 900, "height": 120 } },
+        { "label": "公众号：机器之心 最新文章", "bounds": { "x": 70, "y": 540, "width": 760, "height": 120 } },
+        { "label": "通讯录", "bounds": { "x": 292, "y": 2212, "width": 292, "height": 320 } }
+      ],
+      "vision": { "pageType": "wechat_home", "summary": "微信近期聊天列表含旧总结文本。", "mainRegions": ["聊天列表", "底部标签栏"], "inputHints": ["搜索"], "riskHints": [], "recommendedObservation": "旧总结不应触发文章阅读。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "tap_xy", "label": "通讯录" }, "nextFrame": "wechat_official_accounts_no_target", "message": "进入通讯录公众号区域" }]
+    },
+    "wechat_official_accounts_no_target": {
+      "id": "wechat_official_accounts_no_target",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_official_accounts_no_target.png",
+      "nodes": [
+        { "label": "公众号", "bounds": { "x": 500, "y": 120, "width": 180, "height": 80 }, "clickable": false },
+        { "label": "新的公众号", "bounds": { "x": 70, "y": 330, "width": 360, "height": 96 } },
+        { "label": "量子位", "bounds": { "x": 80, "y": 530, "width": 320, "height": 96 } },
+        { "label": "新智元", "bounds": { "x": 80, "y": 710, "width": 320, "height": 96 } }
+      ],
+      "vision": { "pageType": "wechat_official_accounts", "summary": "公众号列表首屏没有目标公众号。", "mainRegions": ["公众号列表"], "inputHints": ["搜索"], "riskHints": [], "recommendedObservation": "第一眼没有目标时可滚动继续找。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "swipe", "direction": "up" }, "nextFrame": "wechat_official_accounts_target_after_scroll", "message": "滚动公众号列表" }]
+    },
+    "wechat_official_accounts_target_after_scroll": {
+      "id": "wechat_official_accounts_target_after_scroll",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_official_accounts_target_after_scroll.png",
+      "nodes": [
+        { "label": "公众号", "bounds": { "x": 500, "y": 120, "width": 180, "height": 80 }, "clickable": false },
+        { "label": "机器之心", "bounds": { "x": 80, "y": 360, "width": 420, "height": 110 } },
+        { "label": "量子位", "bounds": { "x": 80, "y": 540, "width": 320, "height": 96 } },
+        { "label": "搜索", "role": "XCUIElementTypeSearchField", "bounds": { "x": 50, "y": 230, "width": 1070, "height": 88 } }
+      ],
+      "vision": { "pageType": "wechat_official_accounts", "summary": "公众号列表滚动后目标机器之心可见。", "mainRegions": ["搜索框", "公众号列表"], "inputHints": ["搜索"], "riskHints": [], "recommendedObservation": "可打开目标公众号。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "tap_xy", "label": "机器之心" }, "nextFrame": "wechat_ai_search", "message": "打开目标公众号的测试占位" }]
+    }
+  }
+}

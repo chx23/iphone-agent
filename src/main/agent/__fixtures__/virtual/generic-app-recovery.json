@@ -1,0 +1,72 @@
+{
+  "id": "generic-app-recovery",
+  "title": "通用未知 App 搜索与系统界面恢复",
+  "instruction": "继续当前任务，找到有用信息并整理",
+  "tags": ["generic", "unknown_app", "recovery"],
+  "modelStress": "bad_json",
+  "initialFrame": "generic_notes_search",
+  "frames": {
+    "generic_notes_home": {
+      "id": "generic_notes_home",
+      "app": "com.apple.mobilenotes",
+      "image": "images/generic_notes_home.png",
+      "nodes": [
+        { "label": "备忘录", "bounds": { "x": 460, "y": 120, "width": 260, "height": 80 }, "clickable": false },
+        { "label": "搜索备忘录", "role": "XCUIElementTypeSearchField", "bounds": { "x": 60, "y": 270, "width": 1050, "height": 100 } },
+        { "label": "购物清单", "bounds": { "x": 80, "y": 480, "width": 480, "height": 110 } },
+        { "label": "会议记录", "bounds": { "x": 80, "y": 660, "width": 480, "height": 110 } }
+      ],
+      "vision": { "pageType": "unknown", "summary": "备忘录首页，有搜索框和笔记列表。", "mainRegions": ["搜索栏", "笔记列表"], "inputHints": ["搜索备忘录"], "riskHints": [], "recommendedObservation": "通用任务可先明确用户目标或使用搜索。", "ocrBlocks": [] }
+    },
+    "generic_notes_search": {
+      "id": "generic_notes_search",
+      "app": "com.apple.mobilenotes",
+      "image": "images/generic_notes_search.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "搜索", "role": "XCUIElementTypeSearchField", "bounds": { "x": 60, "y": 150, "width": 900, "height": 100 } },
+        { "label": "键盘已弹出", "bounds": { "x": 80, "y": 540, "width": 420, "height": 90 }, "clickable": false },
+        { "label": "最近搜索：文章 总结", "bounds": { "x": 80, "y": 700, "width": 620, "height": 90 }, "clickable": false }
+      ],
+      "vision": { "pageType": "unknown", "summary": "未知 App 搜索栏已聚焦，键盘弹出。", "mainRegions": ["搜索框", "键盘"], "inputHints": ["搜索"], "riskHints": [], "recommendedObservation": "如果连续无进展，应返回稳定页。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "back" }, "nextFrame": "generic_notes_home", "message": "返回备忘录首页" }]
+    },
+    "generic_browser_result": {
+      "id": "generic_browser_result",
+      "app": "com.apple.mobilesafari",
+      "image": "images/generic_browser_result.png",
+      "nodes": [
+        { "label": "搜索：附近咖啡", "role": "XCUIElementTypeSearchField", "bounds": { "x": 60, "y": 150, "width": 900, "height": 100 } },
+        { "label": "地图结果", "bounds": { "x": 80, "y": 360, "width": 420, "height": 110 } },
+        { "label": "店铺列表", "bounds": { "x": 80, "y": 540, "width": 420, "height": 110 } },
+        { "label": "打开链接", "bounds": { "x": 80, "y": 720, "width": 420, "height": 110 } }
+      ],
+      "vision": { "pageType": "unknown", "summary": "浏览器搜索结果页，显示地图和店铺列表。", "mainRegions": ["搜索结果"], "inputHints": ["搜索栏"], "riskHints": [], "recommendedObservation": "可从可见结果整理信息。", "ocrBlocks": [] }
+    },
+    "system_home_many_apps": {
+      "id": "system_home_many_apps",
+      "app": "com.apple.springboard",
+      "image": "images/system_home_many_apps.png",
+      "nodes": [
+        { "label": "主屏幕", "bounds": { "x": 460, "y": 120, "width": 260, "height": 80 }, "clickable": false },
+        { "label": "微信", "bounds": { "x": 80, "y": 360, "width": 180, "height": 190 } },
+        { "label": "大众点评", "bounds": { "x": 330, "y": 360, "width": 220, "height": 190 } },
+        { "label": "备忘录", "bounds": { "x": 590, "y": 360, "width": 200, "height": 190 } }
+      ],
+      "vision": { "pageType": "phone_home", "summary": "手机桌面上有微信、大众点评、备忘录等图标。", "mainRegions": ["App 图标网格"], "inputHints": [], "riskHints": [], "recommendedObservation": "可按目标打开对应 App。", "ocrBlocks": [] }
+    },
+    "system_control_center": {
+      "id": "system_control_center",
+      "app": "com.apple.springboard",
+      "image": "images/system_control_center.png",
+      "nodes": [
+        { "label": "控制中心", "bounds": { "x": 440, "y": 120, "width": 320, "height": 80 }, "clickable": false },
+        { "label": "飞行模式", "bounds": { "x": 80, "y": 360, "width": 300, "height": 120 } },
+        { "label": "无线局域网", "bounds": { "x": 420, "y": 360, "width": 300, "height": 120 } },
+        { "label": "屏幕亮度", "bounds": { "x": 80, "y": 560, "width": 300, "height": 120 } }
+      ],
+      "vision": { "pageType": "unknown", "summary": "误入系统控制中心。", "mainRegions": ["系统快捷开关"], "inputHints": [], "riskHints": ["飞行模式"], "recommendedObservation": "应退出控制中心再继续任务。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "back" }, "nextFrame": "system_home_many_apps", "message": "退出控制中心" }]
+    }
+  }
+}

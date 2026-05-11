@@ -1,0 +1,240 @@
+{
+  "id": "wechat-multi-article-generated-48h",
+  "title": "新生成公众号截图：多屏扫描48小时文章",
+  "instruction": "在机器之心公众号主页，扫描近48小时内的所有文章，分别总结后发给陈弘轩",
+  "initialFrame": "profile",
+  "expectedTerminalState": "finished",
+  "expectedPhases": ["collect_article_list", "select_next_article", "read_article", "deliver_message", "verify_done"],
+  "trustedContacts": ["陈弘轩"],
+  "tags": ["wechat", "multi_article", "generated_images", "article_list_scan"],
+  "frames": {
+    "profile": {
+      "id": "profile",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_profile.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 28, "y": 118, "width": 120, "height": 86 } },
+        { "label": "机器之心", "bounds": { "x": 90, "y": 125, "width": 280, "height": 70 }, "clickable": false },
+        { "label": "专业的人工智能媒体和产业服务平台", "bounds": { "x": 90, "y": 430, "width": 920, "height": 80 }, "clickable": false },
+        { "label": "发消息", "bounds": { "x": 90, "y": 650, "width": 430, "height": 92 } },
+        { "label": "已关注", "bounds": { "x": 560, "y": 650, "width": 430, "height": 92 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "list_top", "message": "露出公众号文章列表首屏" }
+      ]
+    },
+    "list_top": {
+      "id": "list_top",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_list_top.png",
+      "nodes": [
+        { "label": "机器之心", "bounds": { "x": 90, "y": 125, "width": 280, "height": 70 }, "clickable": false },
+        { "label": "置顶资料卡：年度AI报告入口", "bounds": { "x": 90, "y": 330, "width": 760, "height": 60 }, "clickable": false },
+        { "label": "今天 10:45", "bounds": { "x": 90, "y": 430, "width": 240, "height": 52 }, "clickable": false },
+        { "label": "机器人如何读懂复杂指令", "bounds": { "x": 90, "y": 492, "width": 920, "height": 110 } },
+        { "label": "视频号 直播预告", "bounds": { "x": 90, "y": 700, "width": 360, "height": 52 }, "clickable": false },
+        { "label": "明晚开发者圆桌", "bounds": { "x": 90, "y": 762, "width": 800, "height": 110 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "list_mid", "message": "继续扫描文章列表" }
+      ]
+    },
+    "list_mid": {
+      "id": "list_mid",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_list_mid.png",
+      "nodes": [
+        { "label": "今天 11:20", "bounds": { "x": 90, "y": 330, "width": 240, "height": 52 }, "clickable": false },
+        { "label": "多模态模型的产品化清单", "bounds": { "x": 90, "y": 392, "width": 920, "height": 110 } },
+        { "label": "昨天 22:40", "bounds": { "x": 90, "y": 620, "width": 240, "height": 52 }, "clickable": false },
+        { "label": "开源Agent框架对比", "bounds": { "x": 90, "y": 682, "width": 920, "height": 110 } },
+        { "label": "昨天 09:15", "bounds": { "x": 90, "y": 910, "width": 240, "height": 52 }, "clickable": false },
+        { "label": "端侧AI部署的真实约束", "bounds": { "x": 90, "y": 972, "width": 920, "height": 110 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "list_boundary", "message": "出现旧文边界" }
+      ]
+    },
+    "list_boundary": {
+      "id": "list_boundary",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_list_boundary.png",
+      "nodes": [
+        { "label": "昨天 09:15", "bounds": { "x": 90, "y": 330, "width": 240, "height": 52 }, "clickable": false },
+        { "label": "端侧AI部署的真实约束", "bounds": { "x": 90, "y": 392, "width": 920, "height": 110 } },
+        { "label": "5月8日 07:20", "bounds": { "x": 90, "y": 620, "width": 260, "height": 52 }, "clickable": false },
+        { "label": "旧文：AI硬件融资观察", "bounds": { "x": 90, "y": 682, "width": 920, "height": 110 } },
+        { "label": "5月7日 21:10", "bounds": { "x": 90, "y": 910, "width": 260, "height": 52 }, "clickable": false },
+        { "label": "旧文：训练数据市场变化", "bounds": { "x": 90, "y": 972, "width": 920, "height": 110 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "list_confirm", "message": "旧文边界后额外确认一屏" }
+      ]
+    },
+    "list_confirm": {
+      "id": "list_confirm",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_list_boundary.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 28, "y": 118, "width": 120, "height": 86 } },
+        { "label": "机器之心", "bounds": { "x": 90, "y": 125, "width": 280, "height": 70 }, "clickable": false },
+        { "label": "5月8日 07:20", "bounds": { "x": 90, "y": 620, "width": 260, "height": 52 }, "clickable": false },
+        { "label": "旧文：AI硬件融资观察", "bounds": { "x": 90, "y": 682, "width": 920, "height": 110 } },
+        { "label": "5月7日 21:10", "bounds": { "x": 90, "y": 910, "width": 260, "height": 52 }, "clickable": false },
+        { "label": "旧文：训练数据市场变化", "bounds": { "x": 90, "y": 972, "width": 920, "height": 110 } }
+      ],
+      "transitions": [
+        { "match": { "type": "tap_text", "label": "多模态模型的产品化清单" }, "nextFrame": "article_multimodal", "message": "打开多模态文章" },
+        { "match": { "type": "tap_text", "label": "机器人如何读懂复杂指令" }, "nextFrame": "article_robot", "message": "打开机器人文章" },
+        { "match": { "type": "tap_text", "label": "开源Agent框架对比" }, "nextFrame": "article_agent", "message": "打开Agent框架文章" },
+        { "match": { "type": "tap_text", "label": "端侧AI部署的真实约束" }, "nextFrame": "article_edge", "message": "打开端侧AI文章" },
+        { "match": { "type": "tap_xy", "label": "返回" }, "nextFrame": "wechat_recent", "message": "返回微信近期聊天列表" },
+        { "match": { "type": "back" }, "nextFrame": "wechat_recent", "message": "返回微信近期聊天列表" }
+      ]
+    },
+    "article_multimodal": {
+      "id": "article_multimodal",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_article_multimodal.png",
+      "nodes": [
+        { "label": "多模态模型的产品化清单", "bounds": { "x": 90, "y": 125, "width": 900, "height": 92 } },
+        { "label": "机器之心 发布于 5月11日", "bounds": { "x": 90, "y": 245, "width": 600, "height": 52 } },
+        { "label": "文章整理了多模态模型产品化前需要检查的清单，包括输入质量、延迟、成本和异常兜底。", "bounds": { "x": 76, "y": 330, "width": 990, "height": 160 } },
+        { "label": "作者认为产品体验的关键不是模型参数更大，而是把感知结果转成可解释、可验证的决策。", "bounds": { "x": 76, "y": 540, "width": 990, "height": 160 } },
+        { "label": "文末提醒团队要用真实任务回放评估模型，而不是只看演示截图。", "bounds": { "x": 76, "y": 750, "width": 990, "height": 160 } },
+        { "label": "阅读原文", "bounds": { "x": 290, "y": 2220, "width": 180, "height": 60 } },
+        { "label": "写留言", "bounds": { "x": 540, "y": 2220, "width": 180, "height": 60 } }
+      ],
+      "transitions": [
+        { "match": { "type": "back" }, "nextFrame": "list_confirm", "message": "回到列表继续下一篇" }
+      ]
+    },
+    "article_robot": {
+      "id": "article_robot",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_article_robot.png",
+      "nodes": [
+        { "label": "机器人如何读懂复杂指令", "bounds": { "x": 90, "y": 125, "width": 900, "height": 92 } },
+        { "label": "机器之心 发布于 5月11日", "bounds": { "x": 90, "y": 245, "width": 600, "height": 52 } },
+        { "label": "文章解释了机器人执行复杂指令时，先要把用户目标拆成可验证的小步骤。", "bounds": { "x": 76, "y": 330, "width": 990, "height": 160 } },
+        { "label": "系统会结合视觉识别、动作历史和失败反馈，选择下一步最稳妥的操作。", "bounds": { "x": 76, "y": 540, "width": 990, "height": 160 } },
+        { "label": "文中强调，人类式操作不是一次做很多动作，而是每步都确认结果再继续。", "bounds": { "x": 76, "y": 750, "width": 990, "height": 160 } },
+        { "label": "阅读原文", "bounds": { "x": 290, "y": 2220, "width": 180, "height": 60 } },
+        { "label": "写留言", "bounds": { "x": 540, "y": 2220, "width": 180, "height": 60 } }
+      ],
+      "transitions": [
+        { "match": { "type": "back" }, "nextFrame": "list_confirm", "message": "回到列表继续下一篇" }
+      ]
+    },
+    "article_agent": {
+      "id": "article_agent",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_article_agent.png",
+      "nodes": [
+        { "label": "开源Agent框架对比", "bounds": { "x": 90, "y": 125, "width": 900, "height": 92 } },
+        { "label": "机器之心 发布于 5月10日", "bounds": { "x": 90, "y": 245, "width": 600, "height": 52 } },
+        { "label": "文章对比了几类开源Agent框架，重点关注状态管理、工具调用、记忆和恢复能力。", "bounds": { "x": 76, "y": 330, "width": 990, "height": 160 } },
+        { "label": "它指出成熟框架都会记录决策轨迹，方便开发者复盘为什么执行某个动作。", "bounds": { "x": 76, "y": 540, "width": 990, "height": 160 } },
+        { "label": "作者建议先用小而稳定的技能闭环，再逐步放开通用任务规划。", "bounds": { "x": 76, "y": 750, "width": 990, "height": 160 } },
+        { "label": "阅读原文", "bounds": { "x": 290, "y": 2220, "width": 180, "height": 60 } },
+        { "label": "写留言", "bounds": { "x": 540, "y": 2220, "width": 180, "height": 60 } }
+      ],
+      "transitions": [
+        { "match": { "type": "back" }, "nextFrame": "list_confirm", "message": "回到列表继续下一篇" }
+      ]
+    },
+    "article_edge": {
+      "id": "article_edge",
+      "app": "com.tencent.xin",
+      "image": "images/oa_variant_article_edge.png",
+      "nodes": [
+        { "label": "端侧AI部署的真实约束", "bounds": { "x": 90, "y": 125, "width": 900, "height": 92 } },
+        { "label": "机器之心 发布于 5月10日", "bounds": { "x": 90, "y": 245, "width": 600, "height": 52 } },
+        { "label": "文章讨论端侧AI部署面临的内存、功耗、网络和隐私约束。", "bounds": { "x": 76, "y": 330, "width": 990, "height": 160 } },
+        { "label": "很多系统需要把云端模型和本地轻量逻辑组合起来，用缓存和预处理减少不必要的模型调用。", "bounds": { "x": 76, "y": 540, "width": 990, "height": 160 } },
+        { "label": "文末认为端侧体验的核心是稳定响应和低失败率，而不是单次推理速度。", "bounds": { "x": 76, "y": 750, "width": 990, "height": 160 } },
+        { "label": "阅读原文", "bounds": { "x": 290, "y": 2220, "width": 180, "height": 60 } },
+        { "label": "写留言", "bounds": { "x": 540, "y": 2220, "width": 180, "height": 60 } }
+      ],
+      "transitions": [
+        { "match": { "type": "back" }, "nextFrame": "list_confirm", "message": "回到列表准备发送" }
+      ]
+    },
+    "wechat_recent": {
+      "id": "wechat_recent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_recent.png",
+      "nodes": [
+        { "label": "微信", "bounds": { "x": 520, "y": 130, "width": 130, "height": 70 }, "clickable": false },
+        { "label": "搜索", "role": "XCUIElementTypeSearchField", "bounds": { "x": 50, "y": 250, "width": 1070, "height": 92 } },
+        { "label": "陈弘轩 上次总结已收到", "bounds": { "x": 70, "y": 520, "width": 900, "height": 120 } },
+        { "label": "标签页栏", "role": "XCUIElementTypeTabBar", "bounds": { "x": 0, "y": 2212, "width": 1170, "height": 320 }, "clickable": false },
+        { "label": "微信", "role": "XCUIElementTypeButton", "bounds": { "x": 0, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "通讯录", "role": "XCUIElementTypeButton", "bounds": { "x": 292, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "发现", "role": "XCUIElementTypeButton", "bounds": { "x": 584, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "我", "role": "XCUIElementTypeButton", "bounds": { "x": 876, "y": 2212, "width": 292, "height": 320 } }
+      ],
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "陈弘轩" }, "nextFrame": "wechat_chat", "message": "进入陈弘轩聊天" }
+      ]
+    },
+    "wechat_chat": {
+      "id": "wechat_chat",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "对方: 收到，发我一份。", "bounds": { "x": 80, "y": 520, "width": 760, "height": 100 }, "clickable": false },
+        { "label": "语音输入", "bounds": { "x": 30, "y": 2200, "width": 120, "height": 120 } },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 2208, "width": 720, "height": 100 } },
+        { "label": "表情", "bounds": { "x": 910, "y": 2200, "width": 100, "height": 120 } },
+        { "label": "更多", "bounds": { "x": 1030, "y": 2200, "width": 100, "height": 120 } }
+      ],
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "输入" }, "nextFrame": "wechat_chat_focused", "message": "输入框已聚焦" }
+      ]
+    },
+    "wechat_chat_focused": {
+      "id": "wechat_chat_focused",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_focused.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 1540, "width": 720, "height": 100 } },
+        { "label": "键盘", "bounds": { "x": 0, "y": 1680, "width": 1170, "height": 850 }, "clickable": false }
+      ],
+      "transitions": [
+        { "match": { "type": "input", "textIncludes": "我整理了机器之心近48小时的更新" }, "nextFrame": "wechat_chat_draft", "message": "生成截图场景摘要已作为一条草稿输入" }
+      ]
+    },
+    "wechat_chat_draft": {
+      "id": "wechat_chat_draft",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_draft.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "我整理了机器之心近48小时的更新，共4篇。 1.《多模态模型的产品化清单》：作者认为产品体验的关键不是模型参数更大，而是把感知结果转成可解释、可验证的决策。文末提醒团队要用真实任务回放评估模型，而不是只看演示截图。 2.《机器人如何读懂复杂指令》：系统会结合视觉识别、动作历史和失败反馈，选择下一步最稳妥的操作。文中强调，人类式操作不是一次做很多动作，而是每步都确认结果再继续。 3.《开源Agent框架对比》：它指出成熟框架都会记录决策轨迹，方便开发者复盘为什么执行某个动作。作者建议先用小而稳定的技能闭环，再逐步放开通用任务规划。 4.《端侧AI部署的真实约束》：很多系统需要把云端模型和本地轻量逻辑组合起来，用缓存和预处理减少不必要的模型调用。文末认为端侧体验的核心是稳定响应和低失败率，而不是单次推理速度。 （phone-agent 自动整理）", "role": "XCUIElementTypeTextView", "bounds": { "x": 120, "y": 1020, "width": 820, "height": 700 } },
+        { "label": "发送", "role": "XCUIElementTypeButton", "bounds": { "x": 960, "y": 1500, "width": 150, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "发送" }, "nextFrame": "wechat_chat_sent", "message": "新生成场景摘要已发送" }
+      ]
+    },
+    "wechat_chat_sent": {
+      "id": "wechat_chat_sent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_sent.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "我: 我整理了机器之心近48小时的更新，共4篇。 1.《多模态模型的产品化清单》：作者认为产品体验的关键不是模型参数更大，而是把感知结果转成可解释、可验证的决策。文末提醒团队要用真实任务回放评估模型，而不是只看演示截图。 2.《机器人如何读懂复杂指令》：系统会结合视觉识别、动作历史和失败反馈，选择下一步最稳妥的操作。文中强调，人类式操作不是一次做很多动作，而是每步都确认结果再继续。 3.《开源Agent框架对比》：它指出成熟框架都会记录决策轨迹，方便开发者复盘为什么执行某个动作。作者建议先用小而稳定的技能闭环，再逐步放开通用任务规划。 4.《端侧AI部署的真实约束》：很多系统需要把云端模型和本地轻量逻辑组合起来，用缓存和预处理减少不必要的模型调用。文末认为端侧体验的核心是稳定响应和低失败率，而不是单次推理速度。 （phone-agent 自动整理）", "bounds": { "x": 160, "y": 820, "width": 860, "height": 850 }, "clickable": false },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 2208, "width": 720, "height": 100 } }
+      ]
+    }
+  }
+}

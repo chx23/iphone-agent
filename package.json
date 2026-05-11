@@ -1,0 +1,31 @@
+{
+  "name": "phone-agent",
+  "version": "0.1.6",
+  "private": true,
+  "description": "A headless phone agent powered by the KuaiJS project runtime.",
+  "main": "out/headless/phone-agent.js",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run agent:run --",
+    "build": "npm run build:headless",
+    "build:headless": "tsc --noEmit && vite build --config vite.headless.config.ts",
+    "agent": "node out/headless/phone-agent.js",
+    "agent:run": "npm run build:headless && node out/headless/phone-agent.js",
+    "test": "vitest run",
+    "test:virtual": "vitest run src/main/agent/virtual",
+    "test:virtual:live": "vitest run --config vitest.virtual-live.config.ts",
+    "test:smoke": "node scripts/smoke-kuaijs.mjs",
+    "test:smoke:control": "npm run test:smoke:runtime",
+    "test:smoke:runtime": "node scripts/smoke-kuaijs-runtime.mjs",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "^6.0.3",
+    "vite": "^7.3.3",
+    "vitest": "^4.0.15"
+  }
+}

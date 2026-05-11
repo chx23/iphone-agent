@@ -1,0 +1,94 @@
+{
+  "id": "wechat-multi-article-heavy-48h",
+  "title": "公众号48小时大文章量列表扫描",
+  "instruction": "阅读机器之心公众号近48小时所有文章，分别总结后发给陈弘轩",
+  "initialFrame": "heavy_list_1",
+  "expectedTerminalState": "finished",
+  "expectedPhases": ["collect_article_list", "read_article", "deliver_message"],
+  "trustedContacts": ["陈弘轩"],
+  "tags": ["wechat", "multi_article", "heavy_list", "article_list_scan"],
+  "frames": {
+    "heavy_list_1": {
+      "id": "heavy_list_1",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "机器之心", "bounds": { "x": 452, "y": 132, "width": 260, "height": 70 }, "clickable": false },
+        { "label": "今天 08:10", "bounds": { "x": 88, "y": 310, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "端侧大模型部署实践指南", "bounds": { "x": 88, "y": 370, "width": 900, "height": 90 } },
+        { "label": "今天 09:40", "bounds": { "x": 88, "y": 570, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "多模态模型的新一轮开源竞赛", "bounds": { "x": 88, "y": 630, "width": 900, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "heavy_list_2" }
+      ]
+    },
+    "heavy_list_2": {
+      "id": "heavy_list_2",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "今天 12:00", "bounds": { "x": 88, "y": 310, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "大模型Agent评测基准更新", "bounds": { "x": 88, "y": 370, "width": 900, "height": 90 } },
+        { "label": "今天 16:25", "bounds": { "x": 88, "y": 570, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "机器人数据采集平台观察", "bounds": { "x": 88, "y": 630, "width": 900, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "heavy_list_3" }
+      ]
+    },
+    "heavy_list_3": {
+      "id": "heavy_list_3",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "昨天 09:10", "bounds": { "x": 88, "y": 310, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "推理成本优化工具合集", "bounds": { "x": 88, "y": 370, "width": 900, "height": 90 } },
+        { "label": "昨天 13:30", "bounds": { "x": 88, "y": 570, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "AI论文复现工程周记", "bounds": { "x": 88, "y": 630, "width": 900, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "heavy_list_4" }
+      ]
+    },
+    "heavy_list_4": {
+      "id": "heavy_list_4",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "昨天 18:50", "bounds": { "x": 88, "y": 310, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "自动化评测平台选型清单", "bounds": { "x": 88, "y": 370, "width": 900, "height": 90 } },
+        { "label": "昨天 22:15", "bounds": { "x": 88, "y": 570, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "开源视觉语言模型案例分析", "bounds": { "x": 88, "y": 630, "width": 900, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "heavy_list_5" }
+      ]
+    },
+    "heavy_list_5": {
+      "id": "heavy_list_5",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "昨天 23:40", "bounds": { "x": 88, "y": 310, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "具身智能仿真环境盘点", "bounds": { "x": 88, "y": 370, "width": 900, "height": 90 } },
+        { "label": "5月8日 07:20", "bounds": { "x": 88, "y": 570, "width": 260, "height": 48 }, "clickable": false },
+        { "label": "旧文：AI硬件融资观察", "bounds": { "x": 88, "y": 630, "width": 900, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "heavy_list_confirm" }
+      ]
+    },
+    "heavy_list_confirm": {
+      "id": "heavy_list_confirm",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "5月8日 07:20", "bounds": { "x": 88, "y": 570, "width": 260, "height": 48 }, "clickable": false },
+        { "label": "旧文：AI硬件融资观察", "bounds": { "x": 88, "y": 630, "width": 900, "height": 90 } },
+        { "label": "5月7日 21:10", "bounds": { "x": 88, "y": 830, "width": 260, "height": 48 }, "clickable": false },
+        { "label": "旧文：训练数据市场变化", "bounds": { "x": 88, "y": 890, "width": 900, "height": 90 } }
+      ]
+    }
+  }
+}

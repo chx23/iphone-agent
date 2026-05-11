@@ -1,0 +1,58 @@
+{
+  "id": "open-wechat",
+  "title": "从手机桌面打开微信",
+  "instruction": "打开微信",
+  "initialFrame": "desktop",
+  "expectedTerminalState": "finished",
+  "expectedPhases": ["open_app", "verify_done"],
+  "frames": {
+    "desktop": {
+      "id": "desktop",
+      "app": "com.apple.springboard",
+      "image": "images/desktop.png",
+      "nodes": [
+        { "label": "主屏幕", "role": "XCUIElementTypeStaticText", "bounds": { "x": 480, "y": 120, "width": 220, "height": 70 }, "clickable": false },
+        { "label": "微信", "role": "XCUIElementTypeIcon", "bounds": { "x": 80, "y": 360, "width": 170, "height": 190 } },
+        { "label": "大众点评", "role": "XCUIElementTypeIcon", "bounds": { "x": 330, "y": 360, "width": 190, "height": 190 } }
+      ],
+      "vision": {
+        "pageType": "phone_home",
+        "summary": "手机桌面上可见微信和大众点评图标。",
+        "mainRegions": ["状态栏", "应用图标网格"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "确认目标 App 图标或等待前台应用变化。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "open_app", "bundleId": "com.tencent.xin" }, "nextFrame": "wechat_recent", "message": "虚拟设备已打开微信" }
+      ]
+    },
+    "wechat_recent": {
+      "id": "wechat_recent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_recent.png",
+      "nodes": [
+        { "label": "微信", "bounds": { "x": 520, "y": 130, "width": 130, "height": 70 }, "clickable": false },
+        { "label": "快捷操作", "role": "XCUIElementTypeButton", "bounds": { "x": 980, "y": 130, "width": 120, "height": 90 } },
+        { "label": "搜索", "role": "XCUIElementTypeSearchField", "bounds": { "x": 50, "y": 250, "width": 1070, "height": 92 } },
+        { "label": "陈弘轩, 上次总结已收到", "bounds": { "x": 70, "y": 520, "width": 900, "height": 120 } },
+        { "label": "公众号, 未读[3条], 机器之心: 最新文章", "bounds": { "x": 70, "y": 700, "width": 970, "height": 120 } },
+        { "label": "标签页栏", "role": "XCUIElementTypeTabBar", "bounds": { "x": 0, "y": 2212, "width": 1170, "height": 320 }, "clickable": false },
+        { "label": "微信", "role": "XCUIElementTypeButton", "bounds": { "x": 0, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "通讯录", "role": "XCUIElementTypeButton", "bounds": { "x": 292, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "发现", "role": "XCUIElementTypeButton", "bounds": { "x": 584, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "我", "role": "XCUIElementTypeButton", "bounds": { "x": 876, "y": 2212, "width": 292, "height": 320 } }
+      ],
+      "vision": {
+        "pageType": "wechat_home",
+        "summary": "微信近期聊天列表，底部有微信、通讯录、发现和我。",
+        "mainRegions": ["顶部标题", "搜索入口", "聊天列表", "底部标签栏"],
+        "inputHints": ["搜索"],
+        "riskHints": [],
+        "recommendedObservation": "可通过通讯录进入公众号，也可从近期聊天进入联系人。",
+        "ocrBlocks": []
+      }
+    }
+  }
+}

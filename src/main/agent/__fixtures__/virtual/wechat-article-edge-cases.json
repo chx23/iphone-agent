@@ -1,0 +1,73 @@
+{
+  "id": "wechat-article-edge-cases",
+  "title": "公众号主页与文章倒读边界",
+  "instruction": "打开机械之心公众号，阅读最新文章并总结",
+  "tags": ["wechat", "article", "reverse_read"],
+  "modelStress": "normal",
+  "initialFrame": "wechat_account_empty_top",
+  "frames": {
+    "wechat_account_empty_top": {
+      "id": "wechat_account_empty_top",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_empty_top.png",
+      "nodes": [
+        { "label": "机械之心", "bounds": { "x": 430, "y": 110, "width": 320, "height": 80 }, "clickable": false },
+        { "label": "已关注公众号", "bounds": { "x": 90, "y": 310, "width": 260, "height": 80 }, "clickable": false },
+        { "label": "专业的人工智能媒体和产业服务平台", "bounds": { "x": 80, "y": 470, "width": 760, "height": 110 }, "clickable": false },
+        { "label": "发消息", "bounds": { "x": 80, "y": 680, "width": 220, "height": 90 } }
+      ],
+      "vision": { "pageType": "wechat_account_home", "summary": "机械之心公众号主页首屏没有文章卡片。", "mainRegions": ["公众号资料"], "inputHints": [], "riskHints": [], "recommendedObservation": "不要误判为文章详情，应滚动寻找文章列表。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "swipe", "direction": "up" }, "nextFrame": "wechat_account_scrolled_articles", "message": "滚动到文章列表" }]
+    },
+    "wechat_account_scrolled_articles": {
+      "id": "wechat_account_scrolled_articles",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "机械之心", "bounds": { "x": 430, "y": 110, "width": 320, "height": 80 }, "clickable": false },
+        { "label": "具身智能来时路：从语言理解到真实动作控制", "bounds": { "x": 80, "y": 360, "width": 880, "height": 130 } },
+        { "label": "大模型评测进入下一阶段", "bounds": { "x": 80, "y": 560, "width": 720, "height": 110 } },
+        { "label": "AI开源项目周报", "bounds": { "x": 80, "y": 740, "width": 520, "height": 110 } }
+      ],
+      "vision": { "pageType": "wechat_account_home", "summary": "公众号主页文章列表可见。", "mainRegions": ["文章列表"], "inputHints": [], "riskHints": [], "recommendedObservation": "可打开第一篇文章。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "tap_xy", "label": "具身智能" }, "nextFrame": "wechat_article_end_open", "message": "从文章末尾附近打开" }]
+    },
+    "wechat_article_end_open": {
+      "id": "wechat_article_end_open",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_article_end_open.png",
+      "nodes": [
+        { "label": "作者总结了机器人学习从早期尝试到基础模型路线的变化。", "bounds": { "x": 70, "y": 360, "width": 980, "height": 130 }, "clickable": false },
+        { "label": "未来竞争会转向稳定评测、失败恢复和数据闭环。", "bounds": { "x": 70, "y": 540, "width": 980, "height": 130 }, "clickable": false },
+        { "label": "阅读原文", "bounds": { "x": 70, "y": 1560, "width": 260, "height": 80 } },
+        { "label": "写留言", "bounds": { "x": 70, "y": 1720, "width": 260, "height": 80 } }
+      ],
+      "vision": { "pageType": "wechat_article", "summary": "微信公众号文章末尾附近，阅读原文和写留言可见。", "mainRegions": ["正文末尾", "文章操作"], "inputHints": [], "riskHints": [], "recommendedObservation": "正文不足时应倒读补齐。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "collect_scroll", "direction": "up" }, "nextFrame": "wechat_article_reverse_mid", "message": "向上倒读文章中段" }]
+    },
+    "wechat_article_reverse_mid": {
+      "id": "wechat_article_reverse_mid",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_article_reverse_mid.png",
+      "nodes": [
+        { "label": "RT-1 把语言指令和视觉观察统一到动作输出。", "bounds": { "x": 70, "y": 360, "width": 980, "height": 120 }, "clickable": false },
+        { "label": "SayCan 强调先判断可行技能，再逐步完成真实任务。", "bounds": { "x": 70, "y": 530, "width": 980, "height": 120 }, "clickable": false },
+        { "label": "这些系统证明了语言模型可以成为机器人决策接口。", "bounds": { "x": 70, "y": 700, "width": 980, "height": 120 }, "clickable": false }
+      ],
+      "vision": { "pageType": "wechat_article", "summary": "微信公众号文章正文中段。", "mainRegions": ["正文"], "inputHints": [], "riskHints": [], "recommendedObservation": "继续倒读直到顶部或稳定。", "ocrBlocks": [] },
+      "transitions": [{ "match": { "type": "collect_scroll", "direction": "up" }, "nextFrame": "wechat_article_reverse_top", "message": "回到文章顶部" }]
+    },
+    "wechat_article_reverse_top": {
+      "id": "wechat_article_reverse_top",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_article_reverse_top.png",
+      "nodes": [
+        { "label": "具身智能来时路：从语言理解到真实动作控制", "bounds": { "x": 70, "y": 280, "width": 980, "height": 140 }, "clickable": false },
+        { "label": "机器之心 发布于 2026年5月11日", "bounds": { "x": 70, "y": 460, "width": 700, "height": 80 }, "clickable": false },
+        { "label": "这篇文章回顾了具身智能从语言理解走向真实动作控制的路线。", "bounds": { "x": 70, "y": 620, "width": 980, "height": 130 }, "clickable": false },
+        { "label": "作者指出，核心挑战是把目标拆成可执行动作。", "bounds": { "x": 70, "y": 790, "width": 980, "height": 130 }, "clickable": false }
+      ],
+      "vision": { "pageType": "wechat_article", "summary": "微信公众号文章顶部，标题和发布者可见。", "mainRegions": ["标题", "发布信息", "正文开头"], "inputHints": [], "riskHints": [], "recommendedObservation": "倒读已补齐顶部正文。", "ocrBlocks": [] }
+    }
+  }
+}

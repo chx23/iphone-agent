@@ -1,0 +1,289 @@
+{
+  "id": "wechat-multi-article-digest-48h",
+  "title": "扫描机器之心近48小时多篇文章并分段发送",
+  "instruction": "在机器之心公众号主页，阅读近48小时内发布的所有文章，分别总结后发给陈弘轩",
+  "initialFrame": "account_home_empty",
+  "expectedTerminalState": "finished",
+  "expectedPhases": ["collect_article_list", "select_next_article", "read_article", "deliver_message", "verify_done"],
+  "trustedContacts": ["陈弘轩"],
+  "tags": ["wechat", "multi_article", "article_list_scan", "digest"],
+  "frames": {
+    "account_home_empty": {
+      "id": "account_home_empty",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_empty_top.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 28, "y": 118, "width": 120, "height": 86 } },
+        { "label": "机器之心", "bounds": { "x": 452, "y": 132, "width": 260, "height": 70 }, "clickable": false },
+        { "label": "专业的人工智能媒体和产业服务平台", "bounds": { "x": 80, "y": 470, "width": 880, "height": 80 }, "clickable": false },
+        { "label": "发消息", "bounds": { "x": 92, "y": 650, "width": 430, "height": 92 } },
+        { "label": "已关注", "bounds": { "x": 560, "y": 650, "width": 430, "height": 92 } }
+      ],
+      "vision": {
+        "pageType": "wechat_account_home",
+        "summary": "公众号主页首屏只有资料区，文章列表尚未露出。",
+        "mainRegions": ["公众号资料", "操作按钮"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "需要向下滑动，露出文章列表。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "list_today", "message": "文章列表首屏露出" }
+      ]
+    },
+    "list_today": {
+      "id": "list_today",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 28, "y": 118, "width": 120, "height": 86 } },
+        { "label": "机器之心", "bounds": { "x": 452, "y": 132, "width": 260, "height": 70 }, "clickable": false },
+        { "label": "今天 09:30", "bounds": { "x": 88, "y": 330, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "具身智能来时路：从语言理解到真实动作控制", "bounds": { "x": 88, "y": 392, "width": 920, "height": 108 } },
+        { "label": "今天 18:10", "bounds": { "x": 88, "y": 650, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "大模型评测进入下一阶段", "bounds": { "x": 88, "y": 712, "width": 820, "height": 108 } }
+      ],
+      "vision": {
+        "pageType": "wechat_account_home",
+        "summary": "文章列表首屏，今天有两篇文章可见。",
+        "mainRegions": ["文章卡片"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "采集可见文章和发布时间后继续向下滑动确认是否还有48小时内文章。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "list_yesterday", "message": "继续扫描昨天文章" }
+      ]
+    },
+    "list_yesterday": {
+      "id": "list_yesterday",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 28, "y": 118, "width": 120, "height": 86 } },
+        { "label": "机器之心", "bounds": { "x": 452, "y": 132, "width": 260, "height": 70 }, "clickable": false },
+        { "label": "昨天 21:20", "bounds": { "x": 88, "y": 330, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "AI开源项目周报：多模态与端侧部署继续升温", "bounds": { "x": 88, "y": 392, "width": 920, "height": 108 } },
+        { "label": "5月8日 08:30", "bounds": { "x": 88, "y": 650, "width": 260, "height": 48 }, "clickable": false },
+        { "label": "旧文：AI基础设施观察", "bounds": { "x": 88, "y": 712, "width": 820, "height": 108 } }
+      ],
+      "vision": {
+        "pageType": "wechat_account_home",
+        "summary": "列表中出现昨天文章和一篇超过48小时的旧文。",
+        "mainRegions": ["文章卡片", "旧文边界"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "看到旧文边界后还需再下滑一屏确认没有遗漏的新文章。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "list_confirm", "message": "旧文边界后额外确认一屏" }
+      ]
+    },
+    "list_confirm": {
+      "id": "list_confirm",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_account_scrolled_articles.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 28, "y": 118, "width": 120, "height": 86 } },
+        { "label": "机器之心", "bounds": { "x": 452, "y": 132, "width": 260, "height": 70 }, "clickable": false },
+        { "label": "今天 09:30", "bounds": { "x": 88, "y": 330, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "具身智能来时路：从语言理解到真实动作控制", "bounds": { "x": 88, "y": 392, "width": 920, "height": 108 } },
+        { "label": "今天 18:10", "bounds": { "x": 88, "y": 650, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "大模型评测进入下一阶段", "bounds": { "x": 88, "y": 712, "width": 820, "height": 108 } },
+        { "label": "昨天 21:20", "bounds": { "x": 88, "y": 970, "width": 240, "height": 48 }, "clickable": false },
+        { "label": "AI开源项目周报：多模态与端侧部署继续升温", "bounds": { "x": 88, "y": 1032, "width": 920, "height": 108 } },
+        { "label": "5月8日 08:30", "bounds": { "x": 88, "y": 1288, "width": 260, "height": 48 }, "clickable": false },
+        { "label": "旧文：AI基础设施观察", "bounds": { "x": 88, "y": 1350, "width": 820, "height": 108 } }
+      ],
+      "vision": {
+        "pageType": "wechat_account_home",
+        "summary": "额外确认屏，没有新增48小时内文章。",
+        "mainRegions": ["文章卡片", "旧文边界"],
+        "inputHints": [],
+        "riskHints": [],
+        "recommendedObservation": "列表扫描完成，可按时间顺序阅读三篇新文章。",
+        "ocrBlocks": []
+      },
+      "transitions": [
+        { "match": { "type": "tap_text", "label": "具身智能来时路" }, "nextFrame": "article1_top", "message": "打开第一篇文章" },
+        { "match": { "type": "tap_text", "label": "大模型评测进入下一阶段" }, "nextFrame": "article2_top", "message": "打开第二篇文章" },
+        { "match": { "type": "tap_text", "label": "AI开源项目周报" }, "nextFrame": "article3_top", "message": "打开第三篇文章" },
+        { "match": { "type": "tap_xy", "label": "返回" }, "nextFrame": "wechat_recent", "message": "返回微信近期聊天列表" },
+        { "match": { "type": "back" }, "nextFrame": "wechat_recent", "message": "返回微信近期聊天列表" }
+      ]
+    },
+    "article1_top": {
+      "id": "article1_top",
+      "app": "com.tencent.xin",
+      "image": "images/article_top.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 28, "y": 118, "width": 120, "height": 86 } },
+        { "label": "具身智能来时路：从语言理解到真实动作控制", "role": "XCUIElementTypeStaticText", "bounds": { "x": 70, "y": 270, "width": 980, "height": 120 } },
+        { "label": "机器之心 发布于 5月11日", "bounds": { "x": 70, "y": 420, "width": 760, "height": 60 } },
+        { "label": "文章梳理了具身智能从语言理解走向真实动作控制的路线，核心在于把抽象目标拆成可执行动作。", "bounds": { "x": 70, "y": 560, "width": 980, "height": 150 } },
+        { "label": "它强调模型需要结合视觉、触觉和环境反馈，才能在开放环境中保持稳定的任务执行能力。", "bounds": { "x": 70, "y": 740, "width": 980, "height": 150 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article1_mid", "message": "继续阅读第一篇" }
+      ]
+    },
+    "article1_mid": {
+      "id": "article1_mid",
+      "app": "com.tencent.xin",
+      "image": "images/article_mid_1.png",
+      "nodes": [
+        { "label": "数据闭环是具身智能落地的关键，系统必须记录失败动作、环境变化和恢复策略。", "bounds": { "x": 70, "y": 440, "width": 980, "height": 150 } },
+        { "label": "文章还讨论了评测方式的变化，从单点能力测试转向真实场景中的连续任务完成率。", "bounds": { "x": 70, "y": 640, "width": 980, "height": 150 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article1_bottom", "message": "读到第一篇底部" }
+      ]
+    },
+    "article1_bottom": {
+      "id": "article1_bottom",
+      "app": "com.tencent.xin",
+      "image": "images/article_bottom.png",
+      "nodes": [
+        { "label": "最后，作者认为端到端大模型只是起点，工程稳定性、数据采集和失败恢复才决定实际可用性。", "bounds": { "x": 70, "y": 420, "width": 980, "height": 150 } },
+        { "label": "阅读原文", "bounds": { "x": 420, "y": 1680, "width": 320, "height": 90 } },
+        { "label": "写留言", "bounds": { "x": 420, "y": 1840, "width": 320, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "back" }, "nextFrame": "list_confirm", "message": "回到列表继续下一篇" }
+      ]
+    },
+    "article2_top": {
+      "id": "article2_top",
+      "app": "com.tencent.xin",
+      "image": "images/article_top.png",
+      "nodes": [
+        { "label": "大模型评测进入下一阶段", "bounds": { "x": 70, "y": 270, "width": 980, "height": 120 } },
+        { "label": "机器之心 发布于 5月11日", "bounds": { "x": 70, "y": 420, "width": 760, "height": 60 } },
+        { "label": "文章认为大模型评测正在从单次榜单分数，转向持续任务表现和真实场景稳定性。", "bounds": { "x": 70, "y": 560, "width": 980, "height": 150 } },
+        { "label": "新的评测更关注工具使用、长链路规划、错误恢复和结果可复现性。", "bounds": { "x": 70, "y": 740, "width": 980, "height": 150 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article2_bottom", "message": "读到第二篇底部" }
+      ]
+    },
+    "article2_bottom": {
+      "id": "article2_bottom",
+      "app": "com.tencent.xin",
+      "image": "images/article_bottom.png",
+      "nodes": [
+        { "label": "作者指出，未来评测需要公开任务定义、执行轨迹和失败案例，才能让模型能力比较更可信。", "bounds": { "x": 70, "y": 480, "width": 980, "height": 150 } },
+        { "label": "阅读原文", "bounds": { "x": 420, "y": 1680, "width": 320, "height": 90 } },
+        { "label": "写留言", "bounds": { "x": 420, "y": 1840, "width": 320, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "back" }, "nextFrame": "list_confirm", "message": "回到列表继续下一篇" }
+      ]
+    },
+    "article3_top": {
+      "id": "article3_top",
+      "app": "com.tencent.xin",
+      "image": "images/article_top.png",
+      "nodes": [
+        { "label": "AI开源项目周报：多模态与端侧部署继续升温", "bounds": { "x": 70, "y": 270, "width": 980, "height": 120 } },
+        { "label": "机器之心 发布于 5月10日", "bounds": { "x": 70, "y": 420, "width": 760, "height": 60 } },
+        { "label": "周报整理了近期值得关注的开源模型、推理框架和自动化评测工具。", "bounds": { "x": 70, "y": 560, "width": 980, "height": 150 } },
+        { "label": "多模态能力、端侧部署和低成本评测成为多个项目共同强调的方向。", "bounds": { "x": 70, "y": 740, "width": 980, "height": 150 } }
+      ],
+      "transitions": [
+        { "match": { "type": "collect_scroll", "direction": "down" }, "nextFrame": "article3_bottom", "message": "读到第三篇底部" }
+      ]
+    },
+    "article3_bottom": {
+      "id": "article3_bottom",
+      "app": "com.tencent.xin",
+      "image": "images/article_bottom.png",
+      "nodes": [
+        { "label": "文章提醒读者关注许可证、部署成本和社区活跃度，不要只看发布时的热度。", "bounds": { "x": 70, "y": 480, "width": 980, "height": 150 } },
+        { "label": "阅读原文", "bounds": { "x": 420, "y": 1680, "width": 320, "height": 90 } },
+        { "label": "写留言", "bounds": { "x": 420, "y": 1840, "width": 320, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "back" }, "nextFrame": "list_confirm", "message": "回到列表准备发送" }
+      ]
+    },
+    "wechat_recent": {
+      "id": "wechat_recent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_recent.png",
+      "nodes": [
+        { "label": "微信", "bounds": { "x": 520, "y": 130, "width": 130, "height": 70 }, "clickable": false },
+        { "label": "搜索", "role": "XCUIElementTypeSearchField", "bounds": { "x": 50, "y": 250, "width": 1070, "height": 92 } },
+        { "label": "陈弘轩 上次总结已收到", "bounds": { "x": 70, "y": 520, "width": 900, "height": 120 } },
+        { "label": "标签页栏", "role": "XCUIElementTypeTabBar", "bounds": { "x": 0, "y": 2212, "width": 1170, "height": 320 }, "clickable": false },
+        { "label": "微信", "role": "XCUIElementTypeButton", "bounds": { "x": 0, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "通讯录", "role": "XCUIElementTypeButton", "bounds": { "x": 292, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "发现", "role": "XCUIElementTypeButton", "bounds": { "x": 584, "y": 2212, "width": 292, "height": 320 } },
+        { "label": "我", "role": "XCUIElementTypeButton", "bounds": { "x": 876, "y": 2212, "width": 292, "height": 320 } }
+      ],
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "陈弘轩" }, "nextFrame": "wechat_chat", "message": "进入陈弘轩聊天" }
+      ]
+    },
+    "wechat_chat": {
+      "id": "wechat_chat",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "对方: 可以，发我看看。", "bounds": { "x": 80, "y": 520, "width": 760, "height": 100 }, "clickable": false },
+        { "label": "语音输入", "bounds": { "x": 30, "y": 2200, "width": 120, "height": 120 } },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 2208, "width": 720, "height": 100 } },
+        { "label": "表情", "bounds": { "x": 910, "y": 2200, "width": 100, "height": 120 } },
+        { "label": "更多", "bounds": { "x": 1030, "y": 2200, "width": 100, "height": 120 } }
+      ],
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "输入" }, "nextFrame": "wechat_chat_focused", "message": "输入框已聚焦" }
+      ]
+    },
+    "wechat_chat_focused": {
+      "id": "wechat_chat_focused",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_focused.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 1540, "width": 720, "height": 100 } },
+        { "label": "键盘", "bounds": { "x": 0, "y": 1680, "width": 1170, "height": 850 }, "clickable": false }
+      ],
+      "transitions": [
+        { "match": { "type": "input", "textIncludes": "我整理了机器之心近48小时的更新" }, "nextFrame": "wechat_chat_draft", "message": "多文章摘要已作为一条草稿输入" }
+      ]
+    },
+    "wechat_chat_draft": {
+      "id": "wechat_chat_draft",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_draft.png",
+      "keyboardVisible": true,
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "我整理了机器之心近48小时的更新，共3篇。 1.《大模型评测进入下一阶段》：文章认为大模型评测正在从单次榜单分数，转向持续任务表现和真实场景稳定性。新的评测更关注工具使用、长链路规划、错误恢复和结果可复现性。 2.《具身智能来时路：从语言理解到真实动作控制》：文章梳理了具身智能从语言理解走向真实动作控制的路线，核心在于把抽象目标拆成可执行动作。它强调模型需要结合视觉、触觉和环境反馈，才能在开放环境中保持稳定的任务执行能力。 3.《AI开源项目周报：多模态与端侧部署继续升温》：周报整理了近期值得关注的开源模型、推理框架和自动化评测工具。多模态能力、端侧部署和低成本评测成为多个项目共同强调的方向。 （phone-agent 自动整理）", "role": "XCUIElementTypeTextView", "bounds": { "x": 120, "y": 1240, "width": 820, "height": 420 } },
+        { "label": "发送", "role": "XCUIElementTypeButton", "bounds": { "x": 960, "y": 1500, "width": 150, "height": 90 } }
+      ],
+      "transitions": [
+        { "match": { "type": "tap_xy", "label": "发送" }, "nextFrame": "wechat_chat_sent", "message": "分段摘要已发送" }
+      ]
+    },
+    "wechat_chat_sent": {
+      "id": "wechat_chat_sent",
+      "app": "com.tencent.xin",
+      "image": "images/wechat_chat_sent.png",
+      "nodes": [
+        { "label": "返回", "role": "XCUIElementTypeButton", "bounds": { "x": 30, "y": 120, "width": 120, "height": 90 } },
+        { "label": "陈弘轩", "bounds": { "x": 500, "y": 130, "width": 200, "height": 70 }, "clickable": false },
+        { "label": "我: 我整理了机器之心近48小时的更新，共3篇。 1.《大模型评测进入下一阶段》：文章认为大模型评测正在从单次榜单分数，转向持续任务表现和真实场景稳定性。新的评测更关注工具使用、长链路规划、错误恢复和结果可复现性。 2.《具身智能来时路：从语言理解到真实动作控制》：文章梳理了具身智能从语言理解走向真实动作控制的路线，核心在于把抽象目标拆成可执行动作。它强调模型需要结合视觉、触觉和环境反馈，才能在开放环境中保持稳定的任务执行能力。 3.《AI开源项目周报：多模态与端侧部署继续升温》：周报整理了近期值得关注的开源模型、推理框架和自动化评测工具。多模态能力、端侧部署和低成本评测成为多个项目共同强调的方向。 （phone-agent 自动整理）", "bounds": { "x": 160, "y": 1000, "width": 860, "height": 460 }, "clickable": false },
+        { "label": "输入", "role": "XCUIElementTypeTextView", "bounds": { "x": 170, "y": 2208, "width": 720, "height": 100 } }
+      ]
+    }
+  }
+}
