@@ -354,12 +354,15 @@ export type DiagnosticCategory =
   | "runtime"
   | "llm"
   | "vision"
+  | "chat_monitor"
+  | "assistant_job"
+  | "backend_tool"
   | "error";
 
 export interface DiagnosticEvent {
   id: string;
   timestamp: number;
-  source: "agent" | "kuaijs" | "runtime" | "llm" | "vision";
+  source: "agent" | "kuaijs" | "runtime" | "llm" | "vision" | "assistant" | "backend";
   category: DiagnosticCategory;
   action: string;
   modelRole?: ModelRole;
@@ -377,4 +380,78 @@ export interface DiagnosticQuery {
   limit?: number;
   taskId?: string;
   category?: DiagnosticCategory;
+}
+
+export interface ChatMessage {
+  id: string;
+  signature: string;
+  contact: string;
+  direction: "incoming" | "outgoing";
+  text: string;
+  timestampLabel?: string;
+  bounds?: Bounds;
+  observedAt: number;
+}
+
+export type ChatCommandKind =
+  | "chat"
+  | "task"
+  | "status"
+  | "cancel"
+  | "pause"
+  | "resume"
+  | "confirm"
+  | "clarify";
+
+export interface ChatCommand {
+  kind: ChatCommandKind;
+  confidence: number;
+  instruction?: string;
+  reply?: string;
+  needsConfirmation?: boolean;
+  approved?: boolean;
+  reason?: string;
+}
+
+export type AssistantJobStatus =
+  | "pending"
+  | "running"
+  | "waiting_confirmation"
+  | "finished"
+  | "failed"
+  | "cancelled";
+
+export interface AssistantJob {
+  id: string;
+  instruction: string;
+  sourceMessageSignature: string;
+  status: AssistantJobStatus;
+  type: "phone" | "backend";
+  createdAt: number;
+  updatedAt: number;
+  resultMessage?: string;
+  error?: string;
+  confirmationPrompt?: string;
+}
+
+export interface AssistantMonitorState {
+  monitorContact: string;
+  status: "idle" | "observing" | "processing" | "waiting_confirmation" | "stopped";
+  lastObservedAt?: number;
+  lastMessageSignature?: string;
+  processedCount: number;
+  queuedJobs: number;
+  currentJob?: AssistantJob;
+  lastReply?: string;
+}
+
+export interface BackendResearchResult {
+  query: string;
+  summary: string;
+  sources: Array<{
+    title: string;
+    url: string;
+    snippet?: string;
+  }>;
+  fetchedAt: number;
 }

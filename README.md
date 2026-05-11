@@ -1,12 +1,8 @@
 # phone-agent
 
-Headless phone agent for Codex/current-window tasks, powered by the KuaiJS
-project runtime.
+Headless phone agent for Codex/current-window tasks, powered by the KuaiJS project runtime.
 
-The project only maintains the phone-control CLI. It does not ship an Electron
-desktop app, desktop packaging, or any in-repo recurring-run implementation.
-Recurring runs should be configured in codex.app Automations, with the
-automation invoking the CLI command for the desired task.
+The project only maintains the phone-control CLI. It does not ship an Electron desktop app, desktop packaging, or any in-repo recurring-run implementation. Recurring runs should be configured in codex.app Automations.
 
 ## Run From The Current Window
 
@@ -35,26 +31,34 @@ $env:VISION_API_URL="https://llmapi.paratera.com/v1/chat/completions"
 $env:VISION_API_KEY="..."
 $env:VISION_MODEL="Qwen3-VL-235B-A22B-Instruct"
 $env:PHONE_AGENT_TRUSTED_CONTACTS="陈弘轩"
+$env:PHONE_AGENT_TRUSTED_GROUPS="AI同学群"
+$env:PHONE_AGENT_MONITOR_CONTACT="陈弘轩"
 ```
 
-For local defaults, put the same key-value lines in either `.env.local` at the
-workspace root or `%APPDATA%\phone-agent\local.env`. These files are local
-private config and should not be committed.
+For local defaults, put the same key-value lines in either `.env.local` at the workspace root or `%APPDATA%\phone-agent\local.env`. These files are local private config and should not be committed.
 
 Use `PHONE_AGENT_AUTO_CONFIRM=1` only inside trusted codex.app automations.
 
+## WeChat Assistant Mode
+
+Run a long-lived monitor that watches one WeChat chat and accepts tasks from that controller:
+
+```powershell
+npm run agent:run -- --watch-wechat-chat 陈弘轩
+npm run agent:run -- --watch-wechat-chat 陈弘轩 --monitor-once --json
+```
+
+The assistant treats the monitored contact as the controller, classifies each incoming message, queues one task at a time, and replies with short progress or results. Phone tasks reuse the existing `AgentRuntime`; backend research tasks use computer-side HTTP fetch and LLM summarization. Sensitive submissions and sends to non-whitelisted recipients still require confirmation.
+
 ## Codex Automations
 
-Set the automation in codex.app, not in this repository. Point the automation at
-this workspace and run the CLI directly, for example:
+Set the automation in codex.app, not in this repository. Point the automation at this workspace and run the CLI directly, for example:
 
 ```powershell
 npm --prefix E:\phone-agent run agent:run -- --task="打开机械之心公众号，阅读最新文章并总结后发给陈弘轩"
 ```
 
-For unattended sends, set `PHONE_AGENT_TRUSTED_CONTACTS` and
-`PHONE_AGENT_AUTO_CONFIRM=1` in the automation environment only after you have
-verified the flow manually.
+For unattended sends, set `PHONE_AGENT_TRUSTED_CONTACTS` and `PHONE_AGENT_AUTO_CONFIRM=1` in the automation environment only after you have verified the flow manually.
 
 ## Low-Level Actions
 
@@ -75,9 +79,7 @@ npm run agent:run -- --tap 500,1200
 npm run agent:run -- --input "测试文本"
 ```
 
-App launching follows the KuaiJS runtime API shape from `ms-types`: first
-`system.activateApp(bundleId)` / `system.startApp(bundleId)`, then
-`hid.openApp(appNameOrBundleId)` as fallback.
+App launching follows the KuaiJS runtime API shape from `ms-types`: first `system.activateApp(bundleId)` / `system.startApp(bundleId)`, then `hid.openApp(appNameOrBundleId)` as fallback.
 
 ## Build And Tests
 
@@ -91,15 +93,10 @@ npm run test:smoke:runtime
 
 The headless artifact is generated at `out/headless/phone-agent.js`.
 
-`npm run test:virtual` uses committed synthetic phone screenshots and scene
-replay fixtures. It does not connect to a real phone. To validate the same
-screens with the real language and vision models, configure `AI_*` and
-`VISION_*` environment variables, then run:
+`npm run test:virtual` uses committed synthetic phone screenshots and scene replay fixtures. It does not connect to a real phone. To validate the same screens with the real language and vision models, configure `AI_*` and `VISION_*` environment variables, then run:
 
 ```powershell
 npm run test:virtual:live
 ```
 
-The smoke tests discover the local KuaiJS bridge, read status/screenshot/source,
-and verify that the KuaiJS project runtime can execute a no-op script. HTTP
-control authorization (`isAuth=false`) is diagnostic only.
+The smoke tests discover the local KuaiJS bridge, read status/screenshot/source, and verify that the KuaiJS project runtime can execute a no-op script. HTTP control authorization (`isAuth=false`) is diagnostic only.

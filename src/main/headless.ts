@@ -11,6 +11,7 @@ import { KuaiProjectRuntime } from "./kuaijsProjectRuntime";
 import { LlmClient } from "./llmClient";
 import { redactSecrets, safeError, sleep } from "./utils";
 import { VisionClient } from "./visionClient";
+import { WechatAssistantRuntime } from "./assistant/wechatAssistantRuntime";
 
 const DEFAULT_AI_API_URL = "https://llmapi.paratera.com/v1/chat/completions";
 const DEFAULT_AI_MODEL = "GLM-5-Turbo";
@@ -28,6 +29,10 @@ interface CliOptions {
   health: boolean;
   smoke: boolean;
   trustedContacts: string[];
+  trustedGroups: string[];
+  watchWechatChat?: string;
+  monitorOnce: boolean;
+  pollMs: number;
 }
 
 async function main(): Promise<void> {
@@ -81,6 +86,27 @@ async function main(): Promise<void> {
     const result = await control.runtimeSmokeTest(device);
     printResult(options, result);
     if (!result.ok) process.exitCode = 2;
+    return;
+  }
+
+  if (options.watchWechatChat) {
+    const assistant = new WechatAssistantRuntime({
+      userDataDir,
+      device,
+      getSettings: () => settings,
+      kuaijs,
+      control,
+      llm,
+      vision,
+      diagnostics: diagnosticSink
+    });
+    if (!options.json) console.log(`[assistant] watching WeChat chat: ${options.watchWechatChat}`);
+    const state = await assistant.start({
+      monitorContact: options.watchWechatChat,
+      pollMs: options.pollMs,
+      monitorOnce: options.monitorOnce
+    });
+    printResult(options, { ok: true, state, logDir: diagnostics.logDir });
     return;
   }
 
@@ -142,11 +168,17 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const taskFromFlag = optionValue(args, "--task");
+  const watchWechatChat = optionValue(args, "--watch-wechat-chat") ?? process.env.PHONE_AGENT_MONITOR_CONTACT;
   const positional = args.filter((arg) => !arg.startsWith("--"));
   const trusted = [
     ...multiOptionValues(args, "--trusted-contact"),
     ...(process.env.PHONE_AGENT_TRUSTED_CONTACTS ?? "").split(",")
   ].map((item) => item.trim()).filter(Boolean);
+  const trustedGroups = [
+    ...multiOptionValues(args, "--trusted-group"),
+    ...(process.env.PHONE_AGENT_TRUSTED_GROUPS ?? "").split(",")
+  ].map((item) => item.trim()).filter(Boolean);
+  if (watchWechatChat && !trusted.includes(watchWechatChat)) trusted.push(watchWechatChat);
   return {
     task: taskFromFlag ?? (positional.join(" ").trim() || undefined),
     actionJson: optionValue(args, "--action-json"),
@@ -157,7 +189,11 @@ function parseArgs(args: string[]): CliOptions {
     autoConfirm: args.includes("--auto-confirm") || process.env.PHONE_AGENT_AUTO_CONFIRM === "1",
     health: args.includes("--health"),
     smoke: args.includes("--smoke"),
-    trustedContacts: trusted
+    trustedContacts: trusted,
+    trustedGroups,
+    watchWechatChat,
+    monitorOnce: args.includes("--monitor-once"),
+    pollMs: Number(optionValue(args, "--poll-ms") ?? process.env.PHONE_AGENT_POLL_MS ?? 3000)
   };
 }
 
@@ -241,7 +277,10 @@ function buildSettings(deviceId: string, options: CliOptions): AppSettings {
     visionApiUrl: process.env.VISION_API_URL ?? DEFAULT_VISION_API_URL,
     visionModel: process.env.VISION_MODEL ?? DEFAULT_VISION_MODEL,
     hasVisionApiKey,
-    whitelist: options.trustedContacts.map((label) => ({ id: `trusted_${label}`, label, kind: "contact", autoSend: true })),
+    whitelist: [
+      ...options.trustedContacts.map((label) => ({ id: `trusted_contact_${label}`, label, kind: "contact" as const, autoSend: true })),
+      ...options.trustedGroups.map((label) => ({ id: `trusted_group_${label}`, label, kind: "group" as const, autoSend: true }))
+    ],
     advancedAutoMode: process.env.PHONE_AGENT_ADVANCED_AUTO_MODE !== "0"
   };
 }
@@ -284,6 +323,8 @@ function printUsage(): void {
     "Usage:",
     "  npm run agent:run -- --task=\"打开微信\"",
     "  npm run agent:run -- \"打开机械之心公众号，阅读最新文章并总结\"",
+    "  npm run agent:run -- --watch-wechat-chat 陈弘轩",
+    "  npm run agent:run -- --watch-wechat-chat 陈弘轩 --monitor-once --json",
     "  npm run agent:run -- --health",
     "  npm run agent:run -- --smoke",
     "  npm run agent:run -- --home",
@@ -292,13 +333,14 @@ function printUsage(): void {
     "",
     "Useful env:",
     "  PHONE_AGENT_DEVICE_URL=http://127.0.0.1:59844",
+    "  PHONE_AGENT_MONITOR_CONTACT=陈弘轩",
     "  AI_API_URL, AI_API_KEY, LANGUAGE_MODEL",
     "  VISION_API_URL, VISION_API_KEY, VISION_MODEL",
     "  PHONE_AGENT_TRUSTED_CONTACTS=陈弘轩",
+    "  PHONE_AGENT_TRUSTED_GROUPS=AI同学群",
     "  PHONE_AGENT_AUTO_CONFIRM=1"
   ].join("\n"));
 }
-
 main().catch((error) => {
   console.error(redactSecrets(safeError(error)));
   process.exitCode = 1;

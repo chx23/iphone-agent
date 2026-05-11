@@ -62,18 +62,43 @@ function parseReadableChineseIntent(text: string): ParsedIntent | undefined {
     };
   }
 
-  if (text.includes(officialAccount) && account && summaryWords.test(text)) {
+  if (text.includes(officialAccount) && summaryWords.test(text)) {
     const kind = contact && /(\u7fa4\u804a|\u7fa4)/.test(contact) ? "group" : "contact";
     return {
       kind: "wechat_article_summary",
       targetApp: "wechat",
-      source: { app: "wechat", kind: "official_account", name: account },
+      source: account ? { app: "wechat", kind: "official_account", name: account } : undefined,
       delivery: contact ? { app: "wechat", kind, name: contact } : undefined,
       contact,
       topic: account,
       output: "message",
       rawInstruction: text
     };
+  }
+
+  if (deliveryMatch || /(\u95ee\u95ee|\u95ee\u4e00\u4e0b)/.test(text)) {
+    const askParts = splitReadableAskMessage(cleanup(text.match(/(?:\u95ee\u95ee|\u95ee\u4e00\u4e0b)\s*(.+)$/)?.[1]));
+    const sendContact = contact ?? askParts?.contact;
+    const message = cleanup(
+      text.match(/[:\uff1a]\s*(.+)$/)?.[1]
+      ?? text.match(/(?:\u628a|"\u201c?)(.+?)(?:\u53d1\u7ed9|\u53d1\u9001\u7ed9|\u8f6c\u53d1\u7ed9)/)?.[1]
+      ?? askParts?.message
+      ?? text.replace(/(?:\u5fae\u4fe1|app|App|APP)/g, "")
+        .replace(/(?:\u53d1\u7ed9|\u53d1\u9001\u7ed9|\u8f6c\u53d1\u7ed9)\s*[^\u3002\uff0c,\.\s]+(?:\u7fa4\u804a|\u7fa4)?/g, "")
+        .replace(/^(?:\u5e2e\u6211|\u8bf7|\u9ebb\u70e6)?\s*(?:\u628a)?/g, "")
+    );
+    if (sendContact && message) {
+      const kind = /(\u7fa4\u804a|\u7fa4)/.test(sendContact) ? "group" : "contact";
+      return {
+        kind: "wechat_message",
+        targetApp: "wechat",
+        delivery: { app: "wechat", kind, name: sendContact },
+        contact: sendContact,
+        query: message,
+        output: "message",
+        rawInstruction: text
+      };
+    }
   }
 
   if (new RegExp(`^(?:\\u6253\\u5f00|\\u542f\\u52a8|\\u8fdb\\u5165)\\s*${wechat}\\s*[\\u3002\\uff01!\\?\\uff1f]?$`).test(text)) {
@@ -85,6 +110,35 @@ function parseReadableChineseIntent(text: string): ParsedIntent | undefined {
     };
   }
   return undefined;
+}
+
+function splitReadableAskMessage(rest?: string): { contact: string; message: string } | undefined {
+  if (!rest) return undefined;
+  const markers = [
+    "\u4eca\u665a",
+    "\u665a\u4e0a",
+    "\u4e2d\u5348",
+    "\u65e9\u4e0a",
+    "\u660e\u5929",
+    "\u4eca\u5929",
+    "\u5403",
+    "\u53bb",
+    "\u5728",
+    "\u6709\u6ca1\u6709",
+    "\u662f\u5426",
+    "\u80fd\u4e0d\u80fd",
+    "\u53ef\u4ee5",
+    "\u4ec0\u4e48",
+    "\u600e\u4e48"
+  ];
+  const boundary = markers
+    .map((marker) => rest.indexOf(marker))
+    .filter((index) => index >= 2)
+    .sort((a, b) => a - b)[0];
+  if (boundary === undefined) return undefined;
+  const contact = cleanup(rest.slice(0, boundary));
+  const message = cleanup(rest.slice(boundary));
+  return contact && message ? { contact, message } : undefined;
 }
 
 function parseReadableArticleAccount(text: string): string | undefined {
