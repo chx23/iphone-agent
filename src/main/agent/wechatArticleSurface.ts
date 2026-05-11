@@ -98,18 +98,29 @@ export function detectWechatArticleSurface(screen: ScreenGraph, account: string,
 function classifyNonArticleWechatSurface(screen: ScreenGraph, labels: string[], text: string): string | undefined {
   const rawSource = screen.rawSource ?? "";
   const compactText = normalizeText(text);
+  const articleLikeWebView = hasWechatArticleLikeWebView(rawSource, labels, text);
   if (hasWechatBottomTabBar(labels, text) || /XCUIElementTypeTabBar\b[^>]*label="标签页栏"/.test(rawSource)) return "wechat_bottom_tab_bar";
   if (/快捷操作/.test(text) && /搜索/.test(text) && /置顶聊天|消息免打扰|未读|公众号|\d{1,2}:\d{2}|\d{1,2}月\d{1,2}日/.test(text)) return "wechat_recent_chats";
   if (/通讯录/.test(text) && /新的朋友|群聊|标签|公众号|企业微信联系人/.test(text)) return "wechat_contacts";
   if (/公众号/.test(text) && /搜索|新的公众号|公众号列表|订阅号/.test(text) && !/阅读原文|写留言|发布于/.test(text)) return "wechat_official_accounts_list";
   if (/搜索本地|网络结果|最近在搜|大家都在搜|相关搜索|问元宝|图片搜索|文件搜索/.test(text) || screen.keyboardVisible) return "wechat_search";
   if (/内容由AI生成|问 AI|继续提问|切换模型|AI搜索/.test(text)) return "wechat_ai_search";
-  if (/私信|不再关注|已关注公众号|篇原创内容|商品橱窗|视频号:|全部预告|账号描述/.test(text)) return "wechat_account_home";
+  if (!articleLikeWebView && /私信|不再关注|已关注公众号|篇原创内容|商品橱窗|视频号:|全部预告|账号描述/.test(text)) return "wechat_account_home";
   if (isLikelyWechatChatConversation(labels, text)) return "wechat_chat";
-  if (/WCFinder|弹幕|播放|轻触重试|推荐给朋友/.test(text) || labels.some((label) => /^喜欢[:：]\d+|^评论\d+|^赞过\d+|^分享\d+/.test(label))) return "wechat_video_feed";
-  if (/视频号直播|微信扫码预约|分享给朋友|预约/.test(text) && /直播|预告|开发者大会|Create/.test(text) && !/阅读原文|写留言|喜欢作者|在看/.test(text)) return "wechat_live_preview";
+  if (!articleLikeWebView && (/WCFinder|弹幕|播放|轻触重试|推荐给朋友/.test(text) || labels.some((label) => /^喜欢[:：]\d+|^评论\d+|^赞过\d+|^分享\d+/.test(label)))) return "wechat_video_feed";
+  if (!articleLikeWebView && /视频号直播|微信扫码预约|分享给朋友|预约/.test(text) && /直播|预告|开发者大会|Create/.test(text) && !/阅读原文|写留言|喜欢作者|在看/.test(text)) return "wechat_live_preview";
   if (/公众号未读|公众号\[?\d+条\]?/.test(compactText)) return "wechat_recent_chats";
   return undefined;
+}
+
+function hasWechatArticleLikeWebView(rawSource: string, labels: string[], text: string): boolean {
+  const webViewLike = /XCUIElementTypeWebView|MMWebView|WeixinJSBridge|js_article/.test(rawSource)
+    || labels.some((label) => /XCUIElementTypeWebView|MMWebView|WeixinJSBridge|js_article/.test(label));
+  if (!webViewLike) return false;
+  const longTextCount = labels.filter((label) => label.trim().length >= 24 && !/^XCUIElementType/.test(label)).length;
+  const hasArticleChrome = /阅读原文|写留言|喜欢作者|在看|赞\s*\d+|分享\s*\d+|留言\s*\d+|作者|原创|发布|更多/.test(text);
+  const hasArticleDate = /\d{4}年\d{1,2}月\d{1,2}日|\d{1,2}月\d{1,2}日/.test(text);
+  return longTextCount >= 2 && (hasArticleChrome || hasArticleDate);
 }
 
 function isWechatScreen(screen: ScreenGraph): boolean {

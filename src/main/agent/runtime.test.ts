@@ -120,6 +120,27 @@ describe("agent runtime failure messages", () => {
     expect(article).toBeUndefined();
   });
 
+  it("keeps article detection when an article webview contains video or play labels", () => {
+    const article = extractWechatArticleText(articleScreen([
+      articleNode("XCUIElementTypeWebView", 0),
+      articleNode("Suno不再是唯一答案，企业开始选择这个国产AI音乐", 80),
+      articleNode("机器之心", 150),
+      articleNode("2026年5月11日 12:09", 210),
+      articleNode("机器之心发布", 270),
+      articleNode("视频号: 机器之心", 330),
+      articleNode("播放", 390),
+      articleNode("在 AI 音乐行业，有一个正在悄悄发生的迁移，企业开始把工具链从通用生成转向更可控的音乐模型。", 460),
+      articleNode("文章继续解释 Mureka 在段落控制、混音质量和人声表达上的升级，以及它为什么适合企业工作流。", 560),
+      articleNode("赞 46", 1600),
+      articleNode("分享 420", 1660),
+      articleNode("在看 21", 1720),
+      articleNode("留言 1", 1780)
+    ]), "机器之心", true);
+
+    expect(article).toBeDefined();
+    expect(article?.title).toContain("Suno");
+  });
+
   it("marks the article as read only when end evidence is visible near the reading area", () => {
     const article = extractWechatArticleText(articleScreen([
       articleNode("机器之心", 80),
