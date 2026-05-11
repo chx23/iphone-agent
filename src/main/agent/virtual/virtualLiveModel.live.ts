@@ -4,7 +4,7 @@ import { VisionClient } from "../../visionClient";
 import { loadLocalEnv } from "../../env";
 import { decisionSystemPrompt, decisionUserPrompt, normalizeModelDecisionOutput, type ModelDecisionOutput } from "../decisionEngine";
 import { buildPerceptionFrame } from "../perception";
-import { fallbackPlan } from "../planner";
+import { planNextAction } from "../planner";
 import { listVirtualScenarioIds, loadVirtualScenario, virtualLiveModelCases, virtualScreenFor } from "./scenarioLoader";
 import type { VirtualLiveModelCase } from "./types";
 
@@ -56,7 +56,7 @@ describe("virtual live model checks", () => {
     };
     const screen = virtualScreenFor(scenario, "wechat_unknown_search");
     const frame = buildPerceptionFrame(intent, screen, { noProgressCount: 2 });
-    const skillPlan = fallbackPlan(intent, screen, 3, { noProgressCount: 2, phase: "locate_source" });
+    const skillPlan = planNextAction(intent, screen, 3, { noProgressCount: 2, phase: "locate_source" });
     const client = new LlmClient(
       () => aiUrl,
       () => process.env.AI_API_KEY,

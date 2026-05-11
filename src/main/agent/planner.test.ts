@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ParsedIntent, ScreenGraph } from "../../shared/types";
-import { fallbackPlan } from "./planner";
+import { planNextAction } from "./planner";
 
 const baseIntent: ParsedIntent = {
   kind: "wechat_message",
@@ -141,9 +141,9 @@ function draftChatScreen(contact: string, message: string, rawValue = message): 
   };
 }
 
-describe("fallbackPlan", () => {
+describe("planNextAction", () => {
   it("finishes a simple open WeChat task once WeChat is active", () => {
-    const plan = fallbackPlan(openWechatIntent, screen(["微信"], "com.tencent.xin"), 1);
+    const plan = planNextAction(openWechatIntent, screen(["微信"], "com.tencent.xin"), 1);
 
     expect(plan.action).toEqual({ type: "finish", summary: "已打开微信。" });
   });
@@ -151,7 +151,7 @@ describe("fallbackPlan", () => {
   it("exits an accidental WeChat search page instead of typing a contact", () => {
     const search = screen(["微信", "搜索本地或网络结果", "最近在搜"]);
     search.nodes[1].bounds = { x: 120, y: 180, width: 780, height: 90 };
-    const plan = fallbackPlan(baseIntent, search, 2);
+    const plan = planNextAction(baseIntent, search, 2);
 
     expect(plan.action).toEqual({ type: "back" });
     expect(plan.description).toContain("退出当前微信搜索页");
@@ -160,7 +160,7 @@ describe("fallbackPlan", () => {
   it("does not keep typing the contact when a search field is focused", () => {
     const focused = screen(["微信", "搜索本地或网络结果", "最近在搜"]);
     focused.keyboardVisible = true;
-    const plan = fallbackPlan(baseIntent, focused, 3);
+    const plan = planNextAction(baseIntent, focused, 3);
 
     expect(plan.action).toEqual({ type: "back" });
     expect(plan.description).toContain("近期聊天列表");
@@ -168,7 +168,7 @@ describe("fallbackPlan", () => {
 
   it("taps the contact result instead of treating search results as a chat", () => {
     const labels = ["微信", "搜索本地或网络结果", "联系人", "填充1", "填充2", "填充3", "填充4", "填充5", "填充6", "陈弘轩", "搜索网络结果"];
-    const plan = fallbackPlan(baseIntent, screen(labels), 4);
+    const plan = planNextAction(baseIntent, screen(labels), 4);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_10" });
     expect(plan.description).toContain("搜索结果");
@@ -190,7 +190,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: true,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan({ ...baseIntent, contact: exactContact }, searchScreen, 10);
+    const plan = planNextAction({ ...baseIntent, contact: exactContact }, searchScreen, 10);
 
     expect(plan.action).toEqual({ type: "back" });
     expect(plan.description).toContain("近期聊天列表");
@@ -217,7 +217,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan({ ...baseIntent, contact: exactContact }, recentChats, 8);
+    const plan = planNextAction({ ...baseIntent, contact: exactContact }, recentChats, 8);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_2" });
     expect(plan.description).toContain("\u8fd1\u671f\u804a\u5929");
@@ -245,7 +245,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan({ ...baseIntent, contact: exactContact }, contactsPage, 8);
+    const plan = planNextAction({ ...baseIntent, contact: exactContact }, contactsPage, 8);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_6" });
     expect(plan.description).toContain("\u5de6\u4e0b\u89d2");
@@ -281,7 +281,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan(messageIntent, contactsPage, 8);
+    const plan = planNextAction(messageIntent, contactsPage, 8);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_7" });
     expect(plan.description).toContain("\u5de6\u4e0b\u89d2");
@@ -290,7 +290,7 @@ describe("fallbackPlan", () => {
   it("opens the contact from Contacts even when the message intent still has an article topic", () => {
     const exactContact = "\u9648\u5f18\u8f69";
     const labels = ["\u5fae\u4fe1", "\u901a\u8baf\u5f55", "\u516c\u4f17\u53f7", "A", "B", "C", "D", "E", exactContact, "\u5fae\u4fe1\u56e2\u961f"];
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       { ...baseIntent, contact: exactContact, topic: "\u673a\u5668\u4e4b\u5fc3" },
       screen(labels),
       12
@@ -303,7 +303,7 @@ describe("fallbackPlan", () => {
   it("opens chat from the WeChat contact profile page", () => {
     const exactContact = "\u9648\u5f18\u8f69";
     const labels = ["\u5fae\u4fe1", "\u8fd4\u56de", exactContact, "\u670b\u53cb\u8d44\u6599", "\u5fae\u4fe1\u53f7\uff1a", "\u670b\u53cb\u5708", "\u53d1\u6d88\u606f", "\u97f3\u89c6\u9891\u901a\u8bdd"];
-    const plan = fallbackPlan({ ...baseIntent, contact: exactContact }, screen(labels), 14);
+    const plan = planNextAction({ ...baseIntent, contact: exactContact }, screen(labels), 14);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_7" });
     expect(plan.description).toContain("\u53d1\u6d88\u606f");
@@ -312,7 +312,7 @@ describe("fallbackPlan", () => {
   it("opens chat from a contact profile before applying stale article exit logic", () => {
     const exactContact = "\u9648\u5f18\u8f69";
     const labels = ["\u5fae\u4fe1", "\u8fd4\u56de", exactContact, "\u673a\u5668\u4e4b\u5fc3", "\u670b\u53cb\u8d44\u6599", "\u5fae\u4fe1\u53f7\uff1a", "\u53d1\u6d88\u606f"];
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       { ...baseIntent, contact: exactContact, topic: "\u673a\u5668\u4e4b\u5fc3" },
       screen(labels),
       18
@@ -324,7 +324,7 @@ describe("fallbackPlan", () => {
 
   it("keeps chatting when a message intent still carries the article topic", () => {
     const exactContact = "\u9648\u5f18\u8f69";
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       { ...baseIntent, contact: exactContact, topic: "\u673a\u5668\u4e4b\u5fc3" },
       chatScreen(["\u5fae\u4fe1", exactContact, "\u673a\u5668\u4e4b\u5fc3", "\u6309\u4f4f\u8bf4\u8bdd", "XCUIElementTypeTextView"]),
       18
@@ -335,33 +335,33 @@ describe("fallbackPlan", () => {
   });
 
   it("focuses the chat input before typing the message", () => {
-    const plan = fallbackPlan(baseIntent, chatScreen(["微信", "陈弘轩", "按住说话", "XCUIElementTypeTextView"]), 3);
+    const plan = planNextAction(baseIntent, chatScreen(["微信", "陈弘轩", "按住说话", "XCUIElementTypeTextView"]), 3);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_4" });
     expect(plan.description).toContain("聊天输入框");
   });
 
   it("inputs the message after the chat input is focused", () => {
-    const plan = fallbackPlan(baseIntent, chatScreen(["微信", "陈弘轩", "按住说话", "XCUIElementTypeTextView"], true), 4);
+    const plan = planNextAction(baseIntent, chatScreen(["微信", "陈弘轩", "按住说话", "XCUIElementTypeTextView"], true), 4);
 
     expect(plan.action).toEqual({ type: "input", text: "晚上吃什么" });
   });
 
   it("sends the draft when the message is already in the chat input", () => {
-    const plan = fallbackPlan(baseIntent, chatScreen(["微信", "陈弘轩", "晚上吃什么", "发送"]), 4);
+    const plan = planNextAction(baseIntent, chatScreen(["微信", "陈弘轩", "晚上吃什么", "发送"]), 4);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_4" });
     expect(plan.description).toContain("点击发送");
   });
 
   it("finishes after the message appears in chat history", () => {
-    const plan = fallbackPlan(baseIntent, chatScreen(["微信", "陈弘轩", "XCUIElementTypeTextView", "我,晚上吃什么"]), 5);
+    const plan = planNextAction(baseIntent, chatScreen(["微信", "陈弘轩", "XCUIElementTypeTextView", "我,晚上吃什么"]), 5);
 
     expect(plan.action.type).toBe("finish");
   });
 
   it("does not finish from old chat history when a fresh send is required", () => {
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       { ...baseIntent, freshSendRequired: true },
       chatScreen(["微信", "陈弘轩", "XCUIElementTypeTextView", "我,晚上吃什么"]),
       5
@@ -373,7 +373,7 @@ describe("fallbackPlan", () => {
 
   it("finishes a fresh generated summary when sent evidence is visible", () => {
     const message = "我读了机器之心最新文章《具身智能来时路：谷歌RT1、2，SayCan作者Ted Xiao复盘机器人学习》。 简要总结：文章回顾了机器人学习三大阶段，以及数据和基础模型如何推动具身智能演进。 （phone-agent 自动整理）";
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       { ...baseIntent, query: message, freshSendRequired: true },
       chatScreen([
         "微信",
@@ -390,7 +390,7 @@ describe("fallbackPlan", () => {
   it("does not treat several split chat bubbles as one sent message", () => {
     const message = "我读了机器之心最新文章《拿下1亿美元种子轮》，摘要：1. 第一条摘要 2. 第二条摘要（phone-agent 自动整理）";
     const intent = { ...baseIntent, query: message };
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       intent,
       chatScreen([
         "微信",
@@ -410,7 +410,7 @@ describe("fallbackPlan", () => {
   it("sends a long draft when the full TextView value matches even if node labels are truncated", () => {
     const exactContact = "\u9648\u5f18\u8f69";
     const message = "我读了机器之心最新文章《专业的人工智能媒体和产业服务平台》，摘要： 1. 直播预告, 5月13日09:30直播Create百度AI开发者大会 2. 5月13日09:30直播 （phone-agent 自动整理）";
-    const plan = fallbackPlan({ ...baseIntent, contact: exactContact, query: message }, draftChatScreen(exactContact, message), 18);
+    const plan = planNextAction({ ...baseIntent, contact: exactContact, query: message }, draftChatScreen(exactContact, message), 18);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_4" });
     expect(plan.description).toContain("\u70b9\u51fb\u53d1\u9001");
@@ -420,7 +420,7 @@ describe("fallbackPlan", () => {
     const exactContact = "\u9648\u5f18\u8f69";
     const message = "我读了机器之心最新文章《具身智能来时路：谷歌RT1、2，SayCan作者Ted Xiao复盘机器人学习》。 简要总结：前谷歌DeepMind资深科学家Ted Xiao在访谈中系统复盘了具身智能领域的三大时代，揭示了人形机器人浪潮背后的真实演进历程。他详细讲述了团队如何通过构建机械臂农场和研发QT-Opt算法，克服连续动作空间难题，首次在真实世界证明端到端机器人学习的可行性。文章还分享了从单任务抓取走向多任务语言条件化模仿学习的关键决策，以及那些论文里看不到的犹豫与转折，非常值得关心AI和机器人发展的人细读。 （phone-agent 自动整理）";
     const abbreviated = `${message.slice(0, 70)}...${message.slice(150, 220)}...${message.slice(-70)}`;
-    const plan = fallbackPlan({ ...baseIntent, contact: exactContact, query: message }, draftChatScreen(exactContact, message, abbreviated), 18);
+    const plan = planNextAction({ ...baseIntent, contact: exactContact, query: message }, draftChatScreen(exactContact, message, abbreviated), 18);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_4" });
     expect(plan.description).toContain("\u70b9\u51fb\u53d1\u9001");
@@ -429,7 +429,7 @@ describe("fallbackPlan", () => {
   it("rewrites a duplicated long draft instead of sending it", () => {
     const exactContact = "\u9648\u5f18\u8f69";
     const message = "我读了机器之心最新文章《专业的人工智能媒体和产业服务平台》，摘要： 1. 直播预告, 5月13日09:30直播Create百度AI开发者大会 2. 5月13日09:30直播 （phone-agent 自动整理）";
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       { ...baseIntent, contact: exactContact, query: message },
       draftChatScreen(exactContact, message, `${message}${message}`),
       18
@@ -442,7 +442,7 @@ describe("fallbackPlan", () => {
   it("stops when the current draft is only a truncated prefix of the long message", () => {
     const exactContact = "\u9648\u5f18\u8f69";
     const message = "我读了机器之心最新文章《专业的人工智能媒体和产业服务平台》，摘要： 1. 直播预告, 5月13日09:30直播Create百度AI开发者大会 2. 5月13日09:30直播 （phone-agent 自动整理）";
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       { ...baseIntent, contact: exactContact, query: message },
       draftChatScreen(exactContact, message, "我读了机器之心最新文章《专业的人工智能媒体和产业服"),
       18
@@ -455,7 +455,7 @@ describe("fallbackPlan", () => {
   it("finishes when the complete long message appears in one chat bubble", () => {
     const message = "我读了机器之心最新文章《拿下1亿美元种子轮》，摘要：1. 第一条摘要 2. 第二条摘要（phone-agent 自动整理）";
     const intent = { ...baseIntent, query: message };
-    const plan = fallbackPlan(intent, chatScreen(["微信", "陈弘轩", "XCUIElementTypeTextView", `我,${message}`], true), 7);
+    const plan = planNextAction(intent, chatScreen(["微信", "陈弘轩", "XCUIElementTypeTextView", `我,${message}`], true), 7);
 
     expect(plan.action.type).toBe("finish");
   });
@@ -463,7 +463,7 @@ describe("fallbackPlan", () => {
   it("uses WeChat search for the official account when already on a search page", () => {
     const search = screen(["微信", "搜索本地或网络结果", "最近在搜"]);
     search.nodes[1].bounds = { x: 120, y: 180, width: 780, height: 90 };
-    const plan = fallbackPlan(articleIntent, search, 3);
+    const plan = planNextAction(articleIntent, search, 3);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_2" });
     expect(plan.description).toContain("公众号");
@@ -472,21 +472,21 @@ describe("fallbackPlan", () => {
   it("types the official account name into search only during the source-locating phase", () => {
     const focused = screen(["微信", "搜索本地或网络结果", "最近在搜"]);
     focused.keyboardVisible = true;
-    const plan = fallbackPlan(articleIntent, focused, 4);
+    const plan = planNextAction(articleIntent, focused, 4);
 
     expect(plan.action).toEqual({ type: "input", text: "机器之心" });
     expect(plan.phase).toBe("locate_source");
   });
 
   it("exits stale WeChat search text instead of searching a contact", () => {
-    const plan = fallbackPlan(baseIntent, searchScreenWithQuery("机器之心"), 8);
+    const plan = planNextAction(baseIntent, searchScreenWithQuery("机器之心"), 8);
 
     expect(plan.action).toEqual({ type: "back" });
     expect(plan.description).toContain("近期聊天列表");
   });
 
   it("opens the official account from WeChat search results during article tasks", () => {
-    const plan = fallbackPlan(articleIntent, officialAccountSearchResultScreen(), 4);
+    const plan = planNextAction(articleIntent, officialAccountSearchResultScreen(), 4);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_5" });
     expect(["wechat:search_official_account", "wechat:official_accounts_list"]).toContain(plan.route);
@@ -494,20 +494,20 @@ describe("fallbackPlan", () => {
 
   it("does not tap the article category tab when searching an official account", () => {
     const labels = ["微信", "搜索本地或网络结果", "机器之心", "全部,按钮", "文章,按钮", "已选定,文章,按钮", "账号,按钮", "视频,按钮"];
-    const plan = fallbackPlan(articleIntent, screen(labels), 5);
+    const plan = planNextAction(articleIntent, screen(labels), 5);
 
     expect(plan.action).not.toEqual({ type: "tap_element", elementId: "el_5" });
   });
 
   it("exits irrelevant Moments no-result pages instead of repeating official account taps", () => {
-    const plan = fallbackPlan(articleIntent, searchNoResultScreen("机器之心"), 5);
+    const plan = planNextAction(articleIntent, searchNoResultScreen("机器之心"), 5);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_6" });
     expect(plan.route).toBe("wechat:contacts_official_accounts");
   });
 
   it("exits no-result contact search instead of re-submitting the same query", () => {
-    const plan = fallbackPlan(baseIntent, searchNoResultScreen("陈弘轩"), 8);
+    const plan = planNextAction(baseIntent, searchNoResultScreen("陈弘轩"), 8);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_6" });
     expect(plan.route).toBe("wechat:exit_contact_search");
@@ -531,7 +531,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan(articleIntent, tabScreen, 3);
+    const plan = planNextAction(articleIntent, tabScreen, 3);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_4" });
     expect(plan.description).toContain("\u901a\u8baf\u5f55");
@@ -558,7 +558,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan(articleIntent, homeScreen, 2);
+    const plan = planNextAction(articleIntent, homeScreen, 2);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_7" });
     expect(plan.description).toContain("通讯录");
@@ -586,7 +586,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan(articleIntent, homeScreen, 2);
+    const plan = planNextAction(articleIntent, homeScreen, 2);
 
     expect(plan.action).not.toEqual({ type: "collect_scroll", direction: "down", maxScrolls: 1 });
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_8" });
@@ -612,7 +612,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan(baseIntent, homeScreen, 2);
+    const plan = planNextAction(baseIntent, homeScreen, 2);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_2" });
     expect(plan.description).toContain("近期聊天");
@@ -620,7 +620,7 @@ describe("fallbackPlan", () => {
 
   it("opens Official Accounts from the Contacts page", () => {
     const labels = ["微信", "通讯录", "新的朋友", "群聊", "标签", "公众号"];
-    const plan = fallbackPlan(articleIntent, screen(labels), 4);
+    const plan = planNextAction(articleIntent, screen(labels), 4);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_6" });
     expect(plan.description).toContain("公众号列表");
@@ -628,7 +628,7 @@ describe("fallbackPlan", () => {
 
   it("taps the Official Accounts card on Contacts before treating the page as an account list", () => {
     const labels = ["\u5fae\u4fe1", "\u6dfb\u52a0\u670b\u53cb", "\u901a\u8baf\u5f55", "\u6807\u7b7e", "\u516c\u4f17\u53f7 ,", "\u641c\u7d22", "\u9648\u5f18\u8f69", "\u6587\u4ef6\u4f20\u8f93\u52a9\u624b"];
-    const plan = fallbackPlan(
+    const plan = planNextAction(
       {
         ...articleIntent,
         contact: "\u9648\u5f18\u8f69",
@@ -645,7 +645,7 @@ describe("fallbackPlan", () => {
 
   it("returns to the top of Contacts instead of scrolling deeper when the Official Accounts card is not visible", () => {
     const labels = ["\u5fae\u4fe1", "\u901a\u8baf\u5f55", "\u4f01\u4e1a\u5fae\u4fe1\u8054\u7cfb\u4eba", "A", "\u9648\u5f18\u8f69", "\u6587\u4ef6\u4f20\u8f93\u52a9\u624b"];
-    const plan = fallbackPlan(articleIntent, screen(labels), 7);
+    const plan = planNextAction(articleIntent, screen(labels), 7);
 
     expect(plan.action).toEqual({ type: "collect_scroll", direction: "up", maxScrolls: 1 });
     expect(plan.description).toContain("\u9876\u90e8");
@@ -655,7 +655,7 @@ describe("fallbackPlan", () => {
     const labels = ["微信", "公众号", "搜索", "机器之心"];
     const list = screen(labels);
     list.nodes[3].bounds = { x: 240, y: 520, width: 267, height: 78 };
-    const plan = fallbackPlan(articleIntent, list, 5);
+    const plan = planNextAction(articleIntent, list, 5);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_4" });
     expect(plan.description).toContain("公众号列表");
@@ -663,7 +663,7 @@ describe("fallbackPlan", () => {
 
   it("scrolls the Official Accounts list instead of tapping its search box", () => {
     const labels = ["微信", "公众号", "搜索", "新的公众号", "订阅号", "不相关账号"];
-    const plan = fallbackPlan(articleIntent, screen(labels), 5);
+    const plan = planNextAction(articleIntent, screen(labels), 5);
 
     expect(plan.action).toEqual({ type: "collect_scroll", direction: "down", maxScrolls: 1 });
     expect(plan.description).toContain("公众号列表");
@@ -671,7 +671,7 @@ describe("fallbackPlan", () => {
 
   it("keeps scanning the Official Accounts list after repeated scans", () => {
     const labels = ["微信", "公众号", "搜索", "新的公众号", "订阅号", "不相关账号"];
-    const plan = fallbackPlan(articleIntent, screen(labels), 5, { noProgressCount: 1 });
+    const plan = planNextAction(articleIntent, screen(labels), 5, { noProgressCount: 1 });
 
     expect(plan.action).toEqual({ type: "collect_scroll", direction: "down", maxScrolls: 1 });
     expect(plan.route).toBe("wechat:official_accounts_list");
@@ -681,7 +681,7 @@ describe("fallbackPlan", () => {
     const labels = ["微信", "公众号", "搜索", "机器之心", "量子位", "新智元"];
     const list = screen(labels);
     list.nodes[3].bounds = { x: 240, y: 106, width: 267, height: 78 };
-    const plan = fallbackPlan(articleIntent, list, 5);
+    const plan = planNextAction(articleIntent, list, 5);
 
     expect(plan.action).toEqual({ type: "collect_scroll", direction: "up", maxScrolls: 1 });
     expect(plan.description).toContain("完全露出");
@@ -689,7 +689,7 @@ describe("fallbackPlan", () => {
 
   it("opens the first article from an official account page", () => {
     const labels = ["微信", "机器之心", "发消息", "公众号", "a", "b", "c", "d", "e", "这是一篇最新文章标题"];
-    const plan = fallbackPlan(articleIntent, screen(labels), 5);
+    const plan = planNextAction(articleIntent, screen(labels), 5);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_10" });
     expect(plan.description).toContain("最新文章");
@@ -703,7 +703,7 @@ describe("fallbackPlan", () => {
       delivery: { app: "wechat", kind: "contact", name: "陈弘轩" }
     };
     const labels = ["微信", "返回", "搜索", "更多", "机器之心", "已关注公众号", "文章", "具身智能来时路"];
-    const plan = fallbackPlan(messageIntent, screen(labels), 6);
+    const plan = planNextAction(messageIntent, screen(labels), 6);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_2" });
     expect(plan.description).toContain("离开公众号页面");
@@ -727,7 +727,7 @@ describe("fallbackPlan", () => {
       "文章",
       "活久见，时代少年团给大模型上了一课"
     ];
-    const plan = fallbackPlan(articleIntent, screen(labels), 8);
+    const plan = planNextAction(articleIntent, screen(labels), 8);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_15" });
     expect(plan.description).toContain("最新文章");
@@ -745,7 +745,7 @@ describe("fallbackPlan", () => {
       "预约",
       "分享给朋友"
     ];
-    const plan = fallbackPlan(articleIntent, screen(labels), 10);
+    const plan = planNextAction(articleIntent, screen(labels), 10);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_2" });
     expect(plan.description).toContain("直播预告");
@@ -766,7 +766,7 @@ describe("fallbackPlan", () => {
       "活久见，时代少年团给大模型上了一课",
       "活久见，时代少年团给大模型上了一课,阅读 6.9万 赞 1487"
     ];
-    const plan = fallbackPlan(articleIntent, screen(labels), 8);
+    const plan = planNextAction(articleIntent, screen(labels), 8);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_11" });
   });
@@ -785,14 +785,14 @@ describe("fallbackPlan", () => {
       "今天",
       "活久见，时代少年团给大模型上了一课"
     ];
-    const plan = fallbackPlan(articleIntent, screen(labels), 8);
+    const plan = planNextAction(articleIntent, screen(labels), 8);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_11" });
   });
 
   it("uses an already open target official account page instead of restarting from Contacts", () => {
     const labels = ["微信", "机器之心", "发消息", "公众号", "a", "b", "c", "d", "e", "这是一篇最新文章标题"];
-    const plan = fallbackPlan(articleIntent, screen(labels), 1);
+    const plan = planNextAction(articleIntent, screen(labels), 1);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_10" });
     expect(plan.description).toContain("最新文章");
@@ -809,7 +809,7 @@ describe("fallbackPlan", () => {
       "另一段足够长的正文内容，说明文章仍需要继续阅读后再总结。",
       "作者"
     ];
-    const plan = fallbackPlan(articleIntent, screen(labels), 6);
+    const plan = planNextAction(articleIntent, screen(labels), 6);
 
     expect(plan.action).toEqual({ type: "collect_scroll", direction: "down", maxScrolls: 1 });
     expect(plan.description).toContain("阅读全文");
@@ -826,7 +826,7 @@ describe("fallbackPlan", () => {
       "另一段足够长的正文内容，说明文章仍需要继续阅读后再总结。",
       "作者"
     ];
-    const plan = fallbackPlan(articleIntent, screen(labels), 1);
+    const plan = planNextAction(articleIntent, screen(labels), 1);
 
     expect(plan.action).toEqual({ type: "collect_scroll", direction: "down", maxScrolls: 1 });
     expect(plan.description).toContain("阅读全文");
@@ -847,7 +847,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan(articleIntent, profileLike, 6);
+    const plan = planNextAction(articleIntent, profileLike, 6);
 
     expect(plan.action).toEqual({ type: "tap_element", elementId: "el_2" });
   });
@@ -869,7 +869,7 @@ describe("fallbackPlan", () => {
       keyboardVisible: false,
       observedAt: Date.now()
     };
-    const plan = fallbackPlan(articleIntent, accountHome, 6);
+    const plan = planNextAction(articleIntent, accountHome, 6);
 
     expect(plan.action).toEqual({ type: "collect_scroll", direction: "down", maxScrolls: 1 });
   });

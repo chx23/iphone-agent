@@ -73,13 +73,6 @@ export interface AppSettings {
   visionApiUrl: string;
   visionModel: string;
   hasVisionApiKey: boolean;
-  /**
-   * Legacy fields kept for stored settings and older renderer code.
-   * New code should use aiApiUrl/aiModel/hasAiApiKey.
-   */
-  parateraBaseUrl: string;
-  parateraModel: string;
-  hasApiKey: boolean;
   whitelist: WhitelistEntry[];
   advancedAutoMode: boolean;
 }
@@ -110,7 +103,6 @@ export interface HealthCheck {
   visionConfigured?: boolean;
   buildInfo?: BuildInfo;
   executablePath?: string;
-  oldProcessWarning?: string;
   connectionMode?: "lan" | "bridge";
   agentConnected?: boolean;
   isLogin?: boolean;
@@ -194,17 +186,14 @@ export type AgentAction =
   | { type: "tap_xy"; x: number; y: number; coordinateSpace: "screen" | "normalized" }
   | { type: "swipe"; startX: number; startY: number; endX: number; endY: number; coordinateSpace: "screen" | "normalized"; duration?: number }
   | { type: "input"; text: string }
-  | { type: "input_atomic"; text: string }
   | { type: "open_app"; bundleId: string; displayName?: string }
   | { type: "open_url"; url: string }
   | { type: "back" }
   | { type: "home" }
   | { type: "wait"; ms: number; reason?: string }
   | { type: "collect_scroll"; direction: "up" | "down"; maxScrolls: number }
-  | { type: "scroll_until_stable"; direction: "up" | "down"; maxScrolls?: number; stableThreshold?: number }
-  | { type: "read_wechat_article_native"; account: string; direction?: "up" | "down"; maxScrolls?: number; stableThreshold?: number }
   | { type: "ask_user"; prompt: string }
-  | { type: "finish"; summary: string; result?: TaskResult };
+  | { type: "finish"; summary: string };
 
 export interface ActionPreview {
   id: string;
@@ -249,14 +238,6 @@ export interface ParsedIntent {
   multiArticle?: boolean;
   articleWindowHours?: number;
   rawInstruction: string;
-}
-
-export interface TaskResult {
-  title: string;
-  body: string;
-  highlights: string[];
-  destination?: string;
-  source?: string;
 }
 
 export interface AgentSnapshot {
@@ -334,12 +315,6 @@ export interface VerificationResult {
   confidence: number;
 }
 
-export interface RecoveryPlan {
-  reason: string;
-  action: AgentAction;
-  route: string;
-}
-
 export type PlannerActionIntent =
   | { kind: "use_deterministic"; reason?: string }
   | { kind: "tap_text"; text: string; reason?: string }
@@ -368,40 +343,12 @@ export interface ConfirmationRequest {
   createdAt: number;
 }
 
-export interface TeachingSession {
-  id: string;
-  name: string;
-  startedAt: number;
-  events: TeachingEvent[];
-}
-
-export interface TeachingEvent {
-  id: string;
-  timestamp: number;
-  kind: "screen" | "action" | "note";
-  detail: string;
-  screenshotBase64?: string;
-  action?: AgentAction;
-}
-
-export interface SkillDraft {
-  id: string;
-  name: string;
-  description: string;
-  steps: string[];
-  createdAt: number;
-}
-
 export interface LlmModelInfo {
   id: string;
   ownedBy?: string;
 }
 
 export type DiagnosticCategory =
-  | "ui_action"
-  | "ui_prompt"
-  | "ipc_request"
-  | "ipc_response"
   | "agent_timeline"
   | "device_action"
   | "runtime"
@@ -412,7 +359,7 @@ export type DiagnosticCategory =
 export interface DiagnosticEvent {
   id: string;
   timestamp: number;
-  source: "renderer" | "main" | "agent" | "kuaijs" | "runtime" | "llm" | "vision";
+  source: "agent" | "kuaijs" | "runtime" | "llm" | "vision";
   category: DiagnosticCategory;
   action: string;
   modelRole?: ModelRole;

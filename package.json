@@ -15,7 +15,6 @@
     "test:virtual": "vitest run src/main/agent/virtual",
     "test:virtual:live": "vitest run --config vitest.virtual-live.config.ts",
     "test:smoke": "node scripts/smoke-kuaijs.mjs",
-    "test:smoke:control": "npm run test:smoke:runtime",
     "test:smoke:runtime": "node scripts/smoke-kuaijs-runtime.mjs",
     "lint": "tsc --noEmit"
   },

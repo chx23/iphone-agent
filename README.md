@@ -72,7 +72,6 @@ npm run agent:run -- --home
 npm run agent:run -- --back
 npm run agent:run -- --open-app 微信
 npm run agent:run -- --tap 500,1200
-npm run agent:run -- --tap-text 公众号
 npm run agent:run -- --input "测试文本"
 ```
 

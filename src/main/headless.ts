@@ -178,8 +178,6 @@ function parseDirectAction(args: string[]): AgentAction | undefined {
     const [x, y] = tap.split(",").map((value) => Number(value.trim()));
     if (Number.isFinite(x) && Number.isFinite(y)) return { type: "tap_xy", x, y, coordinateSpace: "screen" };
   }
-  const tapText = optionValue(args, "--tap-text");
-  if (tapText) return { type: "tap_text", text: tapText };
   const input = optionValue(args, "--input");
   if (input) return { type: "input", text: input };
   return undefined;
@@ -243,9 +241,6 @@ function buildSettings(deviceId: string, options: CliOptions): AppSettings {
     visionApiUrl: process.env.VISION_API_URL ?? DEFAULT_VISION_API_URL,
     visionModel: process.env.VISION_MODEL ?? DEFAULT_VISION_MODEL,
     hasVisionApiKey,
-    parateraBaseUrl: process.env.AI_API_URL ?? DEFAULT_AI_API_URL,
-    parateraModel: process.env.LANGUAGE_MODEL ?? DEFAULT_AI_MODEL,
-    hasApiKey: hasAiApiKey,
     whitelist: options.trustedContacts.map((label) => ({ id: `trusted_${label}`, label, kind: "contact", autoSend: true })),
     advancedAutoMode: process.env.PHONE_AGENT_ADVANCED_AUTO_MODE !== "0"
   };
@@ -293,7 +288,6 @@ function printUsage(): void {
     "  npm run agent:run -- --smoke",
     "  npm run agent:run -- --home",
     "  npm run agent:run -- --open-app 微信",
-    "  npm run agent:run -- --tap-text 公众号",
     "  npm run agent:run -- --action-json='{\"type\":\"home\"}'",
     "",
     "Useful env:",

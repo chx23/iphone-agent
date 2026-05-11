@@ -29,7 +29,7 @@ import { VisionClient, type VisionMode } from "../visionClient";
 import { buildScreenGraph, elementCenter, findElement } from "../screenGraph";
 import { createId, now, safeError, sleep, truncate } from "../utils";
 import { parseIntent } from "./intent";
-import { fallbackPlan, PlannerOutput } from "./planner";
+import { planNextAction, PlannerOutput } from "./planner";
 import { assessRisk } from "./riskPolicy";
 import {
   detectWechatArticleSurface,
@@ -566,7 +566,7 @@ export class AgentRuntime extends EventEmitter<RuntimeEventMap> {
     const context = this.plannerContext();
     const frame = buildPerceptionFrame(intent, screen, this.perceptionContext());
     const policy = modelUsePolicy(intent, frame, this.perceptionContext());
-    const skillPlan = fallbackPlan(intent, screen, stepIndex, context);
+    const skillPlan = planNextAction(intent, screen, stepIndex, context);
     let modelDecision: ModelDecisionOutput | undefined;
     try {
       if (policy.useLlm && this.deps.getSettings().hasAiApiKey) {
@@ -1746,16 +1746,10 @@ function actionProgressKey(action: AgentAction): string {
       return `tap:${Math.round(action.x)},${Math.round(action.y)}`;
     case "input":
       return `input:${action.text}`;
-    case "input_atomic":
-      return `input_atomic:${action.text}`;
     case "swipe":
       return `swipe:${Math.round(action.startX)},${Math.round(action.startY)}:${Math.round(action.endX)},${Math.round(action.endY)}`;
     case "collect_scroll":
       return `collect_scroll:${action.direction}`;
-    case "scroll_until_stable":
-      return `scroll_until_stable:${action.direction}:${action.maxScrolls ?? ""}:${action.stableThreshold ?? ""}`;
-    case "read_wechat_article_native":
-      return `read_wechat_article_native:${action.account}:${action.direction ?? "down"}`;
     case "tap_element":
       return `tap_element:${action.elementId}`;
     case "tap_text":
@@ -1788,7 +1782,7 @@ function verifyActionResult(action: AgentAction, expected: string, before: Scree
     ok = active.includes(action.bundleId) || (action.displayName ? afterText.includes(action.displayName) : changed);
     actual = ok ? `已观察到目标 App：${action.displayName ?? action.bundleId}。` : `尚未确认目标 App 已在前台，当前 app=${active || "unknown"}。`;
     confidence = ok ? 0.86 : 0.36;
-  } else if (action.type === "input" || action.type === "input_atomic") {
+  } else if (action.type === "input") {
     const head = action.text.slice(0, Math.min(24, action.text.length));
     ok = Boolean(head && afterText.includes(head));
     actual = ok ? "已在屏幕内容中看到输入文本的一部分。" : "尚未从节点树/OCR 确认输入文本出现。";
@@ -1796,7 +1790,7 @@ function verifyActionResult(action: AgentAction, expected: string, before: Scree
   } else if (action.type === "tap_text" || action.type === "tap_element" || action.type === "tap_xy") {
     ok = changed;
     actual = changed ? "点击后页面出现变化。" : "点击后页面暂未变化，后续可能需要等待或换策略。";
-  } else if (action.type === "swipe" || action.type === "collect_scroll" || action.type === "scroll_until_stable") {
+  } else if (action.type === "swipe" || action.type === "collect_scroll") {
     ok = changed;
     actual = changed ? "滑动后页面内容发生变化。" : "滑动后画面稳定，可能已经到达边界。";
     confidence = changed ? 0.76 : 0.62;
@@ -1858,8 +1852,6 @@ function describeAction(action: AgentAction): string {
       return "滑动屏幕";
     case "input":
       return `输入：${truncate(action.text, 40)}`;
-    case "input_atomic":
-      return `原子输入：${truncate(action.text, 40)}`;
     case "open_app":
       return `打开 ${action.displayName ?? action.bundleId}`;
     case "open_url":
@@ -1872,10 +1864,6 @@ function describeAction(action: AgentAction): string {
       return `等待 ${action.ms}ms`;
     case "collect_scroll":
       return "滚动采集页面内容";
-    case "scroll_until_stable":
-      return "连续滚动直到画面稳定";
-    case "read_wechat_article_native":
-      return `原生阅读公众号文章：${action.account}`;
     case "tap_element":
     case "tap_text":
     case "ask_user":

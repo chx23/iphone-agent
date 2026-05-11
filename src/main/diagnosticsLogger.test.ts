@@ -15,8 +15,8 @@ describe("DiagnosticsLogger", () => {
     const event = sanitizeEvent({
       id: "diag_1",
       timestamp: 1,
-      source: "renderer",
-      category: "ui_prompt",
+      source: "agent",
+      category: "agent_timeline",
       action: "save",
       message: "AI_API_KEY=sk-secret123456789 VISION_API_KEY=sk--vision123456789 Bearer abcdefghijk",
       payload: {

@@ -10,7 +10,7 @@ import type {
   TaskPhase
 } from "../../shared/types";
 import type { PlannerContext, PlannerOutput } from "./planner";
-import { fallbackPlan } from "./planner";
+import { planNextAction } from "./planner";
 
 export interface ModelDecisionOutput {
   goal?: string;
@@ -55,7 +55,7 @@ export interface DecisionResult extends PlannerOutput {
 
 export class DecisionEngine {
   decide(input: DecisionInput): DecisionResult {
-    const skillPlan = fallbackPlan(input.intent, input.frame.screen, input.stepIndex, input.context);
+    const skillPlan = planNextAction(input.intent, input.frame.screen, input.stepIndex, input.context);
     const candidates: CandidateDecision[] = [
       toCandidate("skill.primary", skillPlan, "skill")
     ];

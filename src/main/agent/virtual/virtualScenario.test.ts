@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { assessRisk } from "../riskPolicy";
-import { fallbackPlan } from "../planner";
+import { planNextAction } from "../planner";
 import { detectWechatArticleSurface } from "../wechatArticleSurface";
 import { buildPerceptionFrame, modelUsePolicy } from "../perception";
 import { listVirtualScenarioIds, loadVirtualScenario, virtualFixturePath, virtualScreenFor } from "./scenarioLoader";
@@ -63,7 +63,7 @@ describe("virtual phone scenarios", () => {
   it("does not enter article reading from a recent-chat list that mentions old summaries", () => {
     const scenario = loadVirtualScenario("wechat-article-summary-send");
     const screen = virtualScreenFor(scenario, "wechat_recent");
-    const plan = fallbackPlan({
+    const plan = planNextAction({
       kind: "wechat_article_summary",
       targetApp: "wechat",
       source: { app: "wechat", kind: "official_account", name: "机器之心" },

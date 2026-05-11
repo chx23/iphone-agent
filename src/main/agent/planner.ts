@@ -55,7 +55,7 @@ interface RouteAttempt {
   noProgressCount: number;
 }
 
-export function fallbackPlan(intent: ParsedIntent, screen: ScreenGraph, _stepIndex: number, context: PlannerContext = {}): PlannerOutput {
+export function planNextAction(intent: ParsedIntent, screen: ScreenGraph, _stepIndex: number, context: PlannerContext = {}): PlannerOutput {
   const facts = buildScreenFacts(intent, screen);
   if (intent.kind === "generic" && intent.targetApp && intent.targetApp !== "unknown") {
     if (facts.isTargetActive) {
@@ -1368,39 +1368,4 @@ function hasWechatBottomTabBar(text: string): boolean {
 
 function isLikelyChatTranscriptLine(label: string): boolean {
   return /^(我|你|对方|微信用户)[，,]\s*/.test(label) || /^\d{1,2}:\d{2}$/.test(label);
-}
-
-export function plannerSystemPrompt(): string {
-  return [
-    "你是 phone-agent 的手机 GUI 规划器。",
-    "你只能返回 JSON，不要返回 Markdown。",
-    "你必须一次只规划一个最小动作。",
-    "优先使用 tap_element 或 tap_text，只有没有语义元素时才用 tap_xy。",
-    "涉及支付、转账、删除、改账号、公开发布、陌生对象发送时，用 ask_user。",
-    "允许的 action type: tap_element, tap_text, tap_xy, swipe, input, open_app, open_url, back, home, wait, collect_scroll, ask_user, finish。",
-    "返回格式: {\"action\": {...}, \"description\": \"...\", \"expectedResult\": \"...\", \"confidence\": 0.0到1.0 }"
-  ].join("\n");
-}
-
-export function plannerUserPrompt(intent: ParsedIntent, screen: ScreenGraph): string {
-  const elements = [...screen.nodes, ...screen.ocrBlocks]
-    .slice(0, 80)
-    .map((element) => ({
-      id: element.id,
-      label: element.label,
-      role: element.role,
-      bounds: element.bounds,
-      confidence: element.confidence
-    }));
-
-  return JSON.stringify({
-    task: intent,
-    screen: {
-      app: screen.app,
-      orientation: screen.orientation,
-      keyboardVisible: screen.keyboardVisible,
-      dialogs: screen.dialogs.map((dialog) => ({ id: dialog.id, label: dialog.label })),
-      elements
-    }
-  });
 }

@@ -33,6 +33,22 @@ describe("headless architecture boundary", () => {
       expect(text, `${label} references Windows scheduled-task APIs`).not.toMatch(/Register-ScheduledTask|New-ScheduledTask|EveryMinutes|Task Scheduler/i);
     }
   });
+
+  it("keeps slimmed legacy surfaces from coming back", async () => {
+    const files = [
+      ...await sourceFiles(join(repoRoot, "src")),
+      ...await sourceFiles(join(repoRoot, "scripts")),
+      join(repoRoot, "README.md"),
+      join(repoRoot, "package.json")
+    ];
+    const forbidden = /parateraBaseUrl|parateraModel|hasApiKey|TeachingSession|TeachingEvent|SkillDraft|TaskResult|ipc_request|ipc_response|ui_action|ui_prompt|renderer|oldProcessWarning|detectOldPortableProcess|--control|controlMode|test:smoke:control|input_atomic|scroll_until_stable|read_wechat_article_native|--tap-text|fallbackPlan|plannerSystemPrompt|plannerUserPrompt|runScript|nativeRuntime|KuaiNativeRuntime/;
+
+    for (const file of files) {
+      const text = await readFile(file, "utf8");
+      const label = relative(repoRoot, file);
+      expect(text, `${label} should not reference removed compatibility surfaces`).not.toMatch(forbidden);
+    }
+  });
 });
 
 async function sourceFiles(root: string): Promise<string[]> {

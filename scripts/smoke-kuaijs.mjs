@@ -4,7 +4,6 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const args = process.argv.slice(2);
-const controlMode = args.includes("--control");
 const explicitUrl = getArgValue("--url") ?? process.env.PHONE_AGENT_DEVICE_URL;
 const timeoutMs = Number(getArgValue("--timeout") ?? process.env.PHONE_AGENT_TIMEOUT_MS ?? 8000);
 const results = [];
@@ -36,7 +35,6 @@ async function main() {
   await checkIme(baseUrl);
 
   record("pass", "control backend", "HTTP /api/control checks are intentionally removed; use npm run test:smoke:runtime for control.");
-  if (controlMode) record("warn", "control flag ignored", "--control is deprecated because phone-agent controls through the KuaiJS project runtime.");
   finish(hasFailures() ? 1 : 0);
 }
 

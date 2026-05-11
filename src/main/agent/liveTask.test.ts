@@ -62,9 +62,6 @@ describe("live phone agent task", () => {
       visionApiUrl: "",
       visionModel: "disabled-live-fallback",
       hasVisionApiKey: false,
-      parateraBaseUrl: "",
-      parateraModel: "disabled-live-fallback",
-      hasApiKey: false,
       whitelist: [{ id: "contact_chen_hongxuan", label: "陈弘轩", kind: "contact", autoSend: true }],
       advancedAutoMode: true
     };

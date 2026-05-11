@@ -61,9 +61,6 @@ describe("live phone agent open app", () => {
       visionApiUrl: "",
       visionModel: "disabled-live-fallback",
       hasVisionApiKey: false,
-      parateraBaseUrl: "",
-      parateraModel: "disabled-live-fallback",
-      hasApiKey: false,
       whitelist: [],
       advancedAutoMode: true
     };

@@ -283,10 +283,10 @@ function matchesAction(frame: VirtualScreenFrame, expectation: VirtualActionExpe
   if (action.type === "open_app") {
     return !expectation.match.bundleId || action.bundleId === expectation.match.bundleId;
   }
-  if (action.type === "input" || action.type === "input_atomic") {
+  if (action.type === "input") {
     return !expectation.match.textIncludes || action.text.includes(expectation.match.textIncludes);
   }
-  if (action.type === "collect_scroll" || action.type === "scroll_until_stable") {
+  if (action.type === "collect_scroll") {
     return !expectation.match.direction || action.direction === expectation.match.direction;
   }
   if (action.type === "tap_xy") {
@@ -322,9 +322,6 @@ function virtualSettings(scenario: VirtualScenario, overrides: Partial<AppSettin
     visionApiUrl: "virtual://vision",
     visionModel: "virtual-vlm",
     hasVisionApiKey: true,
-    parateraBaseUrl: "virtual://llm",
-    parateraModel: "virtual-llm",
-    hasApiKey: true,
     whitelist: [
       ...(scenario.trustedContacts ?? []).map((label) => ({ id: `trusted_contact_${label}`, label, kind: "contact" as const, autoSend: true })),
       ...(scenario.trustedGroups ?? []).map((label) => ({ id: `trusted_group_${label}`, label, kind: "group" as const, autoSend: true }))

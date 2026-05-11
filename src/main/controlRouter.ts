@@ -100,7 +100,6 @@ function summarizeAction(action: AgentAction): Record<string, unknown> {
         duration: action.duration
       };
     case "input":
-    case "input_atomic":
       return { type: action.type, textChars: action.text.length };
     case "open_app":
       return { type: action.type, bundleId: action.bundleId, displayName: action.displayName };
@@ -114,10 +113,6 @@ function summarizeAction(action: AgentAction): Record<string, unknown> {
       return { type: action.type, ms: action.ms, reason: action.reason };
     case "collect_scroll":
       return { type: action.type, direction: action.direction, maxScrolls: action.maxScrolls };
-    case "scroll_until_stable":
-      return { type: action.type, direction: action.direction, maxScrolls: action.maxScrolls, stableThreshold: action.stableThreshold };
-    case "read_wechat_article_native":
-      return { type: action.type, account: action.account, direction: action.direction, maxScrolls: action.maxScrolls };
     case "ask_user":
       return { type: action.type, prompt: action.prompt };
     case "finish":

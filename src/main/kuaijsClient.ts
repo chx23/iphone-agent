@@ -55,7 +55,6 @@ export class KuaijsRequestError extends Error {
 interface AppDiagnostics {
   buildInfo: BuildInfo;
   executablePath: string;
-  releaseDir?: string;
 }
 
 export class KuaijsClient {
@@ -157,7 +156,6 @@ export class KuaijsClient {
 
   async healthCheck(device: DeviceRecord | undefined, llmConfigured: boolean, visionConfigured = false): Promise<HealthCheck> {
     const checkedAt = now();
-    const oldProcessWarning = await detectOldPortableProcess(this.diagnostics);
     if (!device) {
       const projectRuntimeHealth = await this.projectRuntime?.healthCheck();
       return {
@@ -179,7 +177,6 @@ export class KuaijsClient {
         visionConfigured,
         buildInfo: this.diagnostics?.buildInfo,
         executablePath: this.diagnostics?.executablePath,
-        oldProcessWarning,
         checkedAt,
         controlMessage: "还没有选择手机。",
         projectRuntimeDir: projectRuntimeHealth?.projectDir ?? this.projectRuntime?.projectDir,
@@ -233,7 +230,6 @@ export class KuaijsClient {
       visionConfigured,
       buildInfo: this.diagnostics?.buildInfo,
       executablePath: this.diagnostics?.executablePath,
-      oldProcessWarning,
       connectionMode: device.connectionMode ?? (isLoopbackHost(device.host) ? "bridge" : "lan"),
       agentConnected: statusData?.agentConnected,
       isLogin: statusData?.isLogin,
@@ -394,29 +390,6 @@ export function isEndpointUnauthorized(error: unknown, endpointPrefix?: string):
 
 function isLoopbackHost(host: string): boolean {
   return host === "127.0.0.1" || host === "localhost" || host === "::1";
-}
-
-async function detectOldPortableProcess(diagnostics?: AppDiagnostics): Promise<string | undefined> {
-  if (process.platform !== "win32" || !diagnostics?.releaseDir) return undefined;
-
-  const releaseDir = diagnostics.releaseDir.replace(/'/g, "''");
-  const currentExe = diagnostics.executablePath.replace(/'/g, "''");
-  const script = [
-    "$ErrorActionPreference='SilentlyContinue'",
-    `$releaseDir='${releaseDir}'`,
-    `$currentExe='${currentExe}'`,
-    "$legacyExe = Join-Path $releaseDir 'phone-agent 0.1.0.exe'",
-    "$matches = @(Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and $_.ExecutablePath -ne $currentExe -and $_.ExecutablePath -like $legacyExe } | Select-Object -First 3 -Property ProcessId,ExecutablePath)",
-    "if ($matches.Count -gt 0) { $matches | ConvertTo-Json -Compress }"
-  ].join("; ");
-
-  try {
-    const { stdout } = await execFileAsync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script], { timeout: 1800 });
-    if (!stdout.trim()) return undefined;
-    return "旧版 portable 仍在运行：release\\phone-agent 0.1.0.exe。请关闭它后再测试新版 0.1.1。";
-  } catch {
-    return undefined;
-  }
 }
 
 async function getLocalListeningPorts(): Promise<number[]> {
